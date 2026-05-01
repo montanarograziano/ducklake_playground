@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Tooling caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.ipynb_checkpoints/
+.coverage
+htmlcov/
+coverage.xml
+
+# Generated data — do not commit
+data/
+configs/postgres/data/
+configs/minio/data/
+
+# Docs build output
+site/
+
+# Local env overrides (.env.example is committed)
+.env
+
+# macOS / IDEs
+.DS_Store
+.idea/
+.vscode/
+
+# Project-local scratch
+prova.py
+prova.ipynb

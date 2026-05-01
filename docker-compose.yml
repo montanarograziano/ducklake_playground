@@ -1,0 +1,58 @@
+# DuckLake Playground — Docker Compose
+#
+# Postgres is required (DuckLake catalog). MinIO is optional (only needed for storage_mode=s3).
+#
+# Usage:
+#   docker compose up -d                       # Postgres only (default)
+#   docker compose --profile s3 up -d          # Postgres + MinIO
+#   docker compose down                        # stop everything
+#   docker compose down -v                     # stop and wipe volumes (fresh start)
+
+services:
+  postgres:
+    image: postgres:17
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ducklake_playground}
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+    volumes:
+      - ./configs/postgres/data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    profiles: ["s3"]
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY:-miniopassword}
+    volumes:
+      - ./configs/minio/data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  minio-init-bucket:
+    profiles: ["s3"]
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set minio http://minio:9000 ${AWS_ACCESS_KEY_ID:-minioadmin} ${AWS_SECRET_ACCESS_KEY:-miniopassword} &&
+      /usr/bin/mc ls minio/warehouse || /usr/bin/mc mb minio/warehouse
+      "

@@ -1,0 +1,95 @@
+[project]
+name = "ducklake-playground"
+version = "0.1.0"
+description = "Streaming data generation + DuckLake engine + interactive notebooks for ad-hoc demos."
+keywords = ["ducklake", "duckdb", "lakehouse", "polars", "parquet"]
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+    { name = "Graziano Montanaro", email = "montanarograziano@users.noreply.github.com" },
+]
+
+dependencies = [
+    "duckdb>=1.5.2",
+    "polars>=1.37.0",
+    "pyarrow>=20.0.0",
+    "numpy>=2.0.0",
+    "pyyaml>=6.0",
+    "loguru>=0.7.3",
+    "psutil>=5.9.0",
+    "marimo>=0.23.0",
+    "botocore>=1.39.0",
+]
+
+[project.urls]
+Repository = "https://github.com/montanarograziano/ducklake_playground"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+package = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ducklake_playground"]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+    "jupyterlab>=4.0.0",
+    "pytest>=8.4.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.15.0",
+    "mypy>=1.16.0",
+    "types-psutil>=5.9.0",
+    "pyarrow-stubs>=20.0.0.20251215",
+    "types-pyyaml>=6.0.12.20260408",
+    "ty>=0.0.33",
+]
+
+docs = [
+    "zensical>=0.0.30",
+    "mkdocstrings-python>=1.8.0",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+# notebooks/ holds marimo notebooks. They are valid Python but their structure (imports
+# inside @app.cell decorators, top-level decorated functions, no shebangs) doesn't match
+# what ruff's import / module-layout rules expect.
+exclude = ["site/", "notebooks/"]
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "C4", "D", "I", "N", "RET", "SIM", "TC", "UP"]
+ignore = [
+    "D100",   # missing module docstring
+    "D107",   # missing __init__ docstring
+    "D203",   # blank line before class docstring
+    "D213",   # multi-line summary on second line
+    "E501",   # line too long
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["D104", "F401"]
+"tests/*.py" = ["D"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.mypy]
+python_version = "3.12"
+show_error_codes = true
+no_implicit_optional = true
+
+[[tool.mypy.overrides]]
+module = "pyarrow.*"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+markers = [
+    "integration: tests requiring docker-compose (Postgres + optionally MinIO)",
+]

@@ -1,0 +1,76 @@
+[project]
+site_name = "DuckLake Playground"
+site_description = "Streaming data generation + DuckLake engine + interactive notebooks for DuckLake demos."
+repo_url = "https://github.com/montanarograziano/ducklake_playground"
+repo_name = "montanarograziano/ducklake_playground"
+copyright = "Copyright &copy; 2026 Graziano Montanaro"
+
+nav = [
+  {"Home" = "index.md"},
+  {"Getting Started" = [
+    {"Installation" = "guides/installation.md"},
+    {"Quickstart" = "guides/quickstart.md"},
+    {"Configuration" = "guides/configuration.md"},
+  ]},
+  {"Concepts" = [
+    {"Architecture" = "guides/architecture.md"},
+    {"Data Generation" = "guides/data-generation.md"},
+    {"Notebooks" = "guides/notebooks.md"},
+  ]},
+  {"Operations" = [
+    {"Tuning" = "guides/tuning.md"},
+    {"Maintenance and Time Travel" = "guides/maintenance.md"},
+  ]},
+  {"API Reference" = "reference/index.md"},
+]
+
+[project.theme]
+font.text = "Inter"
+font.code = "JetBrains Mono"
+features = [
+  "content.code.copy",
+  "content.code.annotate",
+  "header.autohide",
+  "navigation.tabs",
+  "navigation.tabs.sticky",
+  "navigation.sections",
+  "navigation.expand",
+  "navigation.top",
+  "navigation.footer",
+  "navigation.instant",
+  "navigation.instant.progress",
+  "search.highlight",
+  "toc.follow",
+  "announce.dismiss",
+]
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+primary = "amber"
+accent = "deep-orange"
+toggle.icon = "lucide/sun"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+primary = "amber"
+accent = "deep-orange"
+toggle.icon = "lucide/moon"
+toggle.name = "Switch to light mode"
+
+[project.plugins.mkdocstrings.handlers.python]
+paths = ["src"]
+
+[project.plugins.mkdocstrings.handlers.python.options]
+docstring_style = "google"
+show_source = true
+show_root_heading = true
+heading_level = 2
+inherited_members = true
+
+[[project.extra.social]]
+icon = "fontawesome/brands/github"
+link = "https://github.com/montanarograziano/ducklake_playground"
+name = "ducklake_playground on GitHub"
