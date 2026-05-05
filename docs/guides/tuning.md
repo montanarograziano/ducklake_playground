@@ -1,3 +1,8 @@
+---
+title: Tuning
+marimo-version: 0.23.4
+---
+
 # Tuning
 
 Three layers of knobs, in order of impact:

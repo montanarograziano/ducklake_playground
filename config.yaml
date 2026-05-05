@@ -3,18 +3,20 @@
 
 playground:
   name: "DuckLake Playground"
-  batch_size: 250_000        # Rows per streaming chunk; bounds generator memory.
-                             # ~250K matches 16MB target_file_size at this schema's
-                             # typical compression. Lower for tighter memory bounds,
-                             # higher for less Python overhead per chunk.
-  target_file_size_mb: 16    # Target Parquet file size (Delta engine; informational
-                             # for DuckLake which uses set_option).
-  parquet_row_group_size: 122_880  # Rows per Parquet row group within a file.
+  batch_size: 250_000
+    # Rows per streaming chunk; bounds generator memory.
+    # ~250K matches 16MB target_file_size at this schema's
+    # typical compression. Lower for tighter memory bounds,
+    # higher for less Python overhead per chunk.
+  target_file_size_mb: 16
+    # Target Parquet file size (Delta engine; informational
+    # for DuckLake which uses set_option).
+  parquet_row_group_size: 122_880 # Rows per Parquet row group within a file.
 
 # Storage modes available. Set the data path / S3 connection below.
 storage_modes:
   - local
-  # - s3                     # Opt-in: requires MinIO (or real S3) running.
+  - s3 # Opt-in: requires MinIO (or real S3) running.
 
 default_storage_mode: local
 
@@ -25,7 +27,7 @@ default_storage_mode: local
 schema:
   id_col: "id"
   seed: 42
-  merge_overlap_ratio: 0.10  # Fraction of merge-source rows that reuse base IDs.
+  merge_overlap_ratio: 0.10 # Fraction of merge-source rows that reuse base IDs.
   columns:
     # Integers
     - { name: "int8_col", type: "int8" }
@@ -46,14 +48,24 @@ schema:
     - { name: "bool_col", type: "boolean" }
     # Complex
     - { name: "list_col", type: "list", child_type: "int32", avg_length: 5 }
-    - { name: "struct_col", type: "struct", fields: ["a:int32", "b:varchar", "c:float64"] }
-    - { name: "map_col", type: "map", key_type: "varchar", value_type: "int32", avg_length: 3 }
+    - {
+        name: "struct_col",
+        type: "struct",
+        fields: [ "a:int32", "b:varchar", "c:float64" ],
+      }
+    - {
+        name: "map_col",
+        type: "map",
+        key_type: "varchar",
+        value_type: "int32",
+        avg_length: 3,
+      }
 
 # Filter predicate — used by the engine's filtered_scan helper and as the default
 # in the demo notebook. Date range applies to event_date (exercises partition pruning).
 filter:
-  date_range: ["2024-01-10", "2024-01-20"]
-  varchar_values: ["value_001", "value_002", "value_003"]
+  date_range: [ "2024-01-10", "2024-01-20" ]
+  varchar_values: [ "value_001", "value_002", "value_003" ]
 
 # DuckLake metadata catalog (PostgreSQL).
 postgres:

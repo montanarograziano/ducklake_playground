@@ -1,3 +1,8 @@
+---
+title: Installation
+marimo-version: 0.23.4
+---
+
 # Installation
 
 ## Prerequisites

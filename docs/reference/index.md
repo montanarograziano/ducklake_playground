@@ -1,3 +1,8 @@
+---
+title: Index
+marimo-version: 0.23.4
+---
+
 # API Reference
 
 Auto-generated from docstrings via [`mkdocstrings`](https://mkdocstrings.github.io/).

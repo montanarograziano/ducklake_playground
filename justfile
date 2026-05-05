@@ -47,13 +47,21 @@ down-clean:
 logs:
     docker compose logs --follow
 
-# Open the marimo demo notebook
+# Open the marimo demo notebook (data generation + streaming writes)
 demo:
     uv run marimo edit notebooks/streaming_demo.py
 
-# Open the Jupyter demo notebook
+# Open the conference live demo (assumes table already exists)
+conference:
+    uv run marimo edit notebooks/conference_demo.py
+
+# Open the Jupyter demo notebook (data generation)
 jupyter:
     uv run jupyter lab notebooks/streaming_demo.ipynb
+
+# Open the Jupyter conference demo
+jupyter-conference:
+    uv run jupyter lab notebooks/conference_demo.ipynb
 
 # Live preview the docs
 preview-docs:

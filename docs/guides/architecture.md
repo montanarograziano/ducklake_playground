@@ -1,3 +1,8 @@
+---
+title: Architecture
+marimo-version: 0.23.4
+---
+
 # Architecture
 
 Three components, one data flow.

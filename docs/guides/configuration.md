@@ -1,3 +1,8 @@
+---
+title: Configuration
+marimo-version: 0.23.4
+---
+
 # Configuration
 
 Everything is in `config.yaml` at the repo root. Loaded by

@@ -1,3 +1,8 @@
+---
+title: Readme
+marimo-version: 0.23.4
+---
+
 # DuckLake Playground
 
 Streaming data generation + a thin DuckLake engine + an interactive marimo notebook for

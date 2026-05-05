@@ -1,3 +1,8 @@
+---
+title: Notebooks
+marimo-version: 0.23.4
+---
+
 # Notebooks
 
 Two notebooks ship in `notebooks/`:

@@ -1,3 +1,8 @@
+---
+title: Quickstart
+marimo-version: 0.23.4
+---
+
 # Quickstart
 
 From zero to a 1M-row DuckLake table you can query, in under five minutes.

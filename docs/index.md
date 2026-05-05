@@ -1,3 +1,8 @@
+---
+title: Index
+marimo-version: 0.23.4
+---
+
 # DuckLake Playground
 
 A focused, single-purpose toolkit for **demoing DuckLake interactively** without the

@@ -8,7 +8,7 @@ Open with: ``uv run marimo edit notebooks/streaming_demo.py`` (or ``just demo``)
 
 import marimo
 
-__generated_with = "0.23.3"
+__generated_with = "0.23.4"
 app = marimo.App(width="full")
 
 
@@ -47,7 +47,7 @@ def _():
 def _(config, mo):
     """Parameters. Re-run downstream cells after editing these."""
     row_count = mo.ui.number(
-        value=1_000_000, start=1_000, step=10_000, label="Row count"
+        value=1_000_000, start=0, step=10_000, label="Row count"
     )
     table_name = mo.ui.text(value="demo_table", label="Table name")
     storage_mode = mo.ui.dropdown(
@@ -80,24 +80,31 @@ def _(DuckLakeEngine, config, mo, storage_mode):
 def _(catalog, table_name):
     """Fully qualified table name used by all SQL cells."""
     fq = f"{catalog}.main.{table_name.value}"
+    fq
     return (fq,)
 
 
-@app.cell
-def _(catalog, con, mo):
-    """Write-time DuckLake catalog options.
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    Write-time DuckLake catalog options.
 
     These persist in the Postgres catalog, so they apply to all subsequent writes
     against this catalog. Setting them here (BEFORE the write) ensures the streaming
     write below uses zstd compression and matched row-group sizing.
-    """
-    _ = mo.sql(
+    """)
+    return
+
+
+@app.cell
+def _(catalog, con, mo):
+    _df = mo.sql(
         f"""
         CALL {catalog}.set_option('parquet_version', 2);
         CALL {catalog}.set_option('parquet_compression', 'zstd');
         CALL {catalog}.set_option('parquet_row_group_size_bytes', '16MB');
         """,
-        engine=con,
+        engine=con
     )
     return
 
@@ -134,17 +141,20 @@ def _(
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(con, fq, mo):
-    """Schema preview."""
-    _ = mo.sql(f"DESCRIBE {fq}", engine=con)
+    _ = mo.sql(
+        f"""
+        DESCRIBE {fq}
+        """,
+        engine=con
+    )
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(con, fq, mo):
-    """Sanity row count + partition span."""
-    _ = mo.sql(
+    _df = mo.sql(
         f"""
         SELECT COUNT(*)         AS n,
                MIN(event_date)  AS min_date,
@@ -152,15 +162,14 @@ def _(con, fq, mo):
                COUNT(DISTINCT event_date) AS distinct_partitions
         FROM {fq}
         """,
-        engine=con,
+        engine=con
     )
     return
 
 
 @app.cell
 def _(con, fq, mo):
-    """Main demo query — partition-pruned aggregation. Edit and re-run."""
-    _ = mo.sql(
+    _df = mo.sql(
         f"""
         SELECT varchar_col,
                COUNT(*)            AS cnt,
@@ -174,15 +183,14 @@ def _(con, fq, mo):
         ORDER BY cnt DESC
         LIMIT 20
         """,
-        engine=con,
+        engine=con
     )
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(con, fq, mo):
-    """EXPLAIN ANALYZE — useful on stage to show partition pruning."""
-    _ = mo.sql(
+    _df = mo.sql(
         f"""
         EXPLAIN ANALYZE
         SELECT varchar_col, COUNT(*) AS cnt, AVG(float64_col) AS avg_val
@@ -190,45 +198,19 @@ def _(con, fq, mo):
         WHERE event_date BETWEEN DATE '2024-01-10' AND DATE '2024-01-20'
         GROUP BY varchar_col
         """,
-        engine=con,
+        engine=con
     )
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(catalog, con, mo):
-    """Snapshot history (DuckLake time-travel surface)."""
-    _ = mo.sql(
-        f"SELECT * FROM {catalog}.snapshots() ORDER BY snapshot_id DESC LIMIT 10",
-        engine=con,
+    _df = mo.sql(
+        f"""
+        SELECT * FROM {catalog}.snapshots() ORDER BY snapshot_id DESC LIMIT 10
+        """,
+        engine=con
     )
-    return
-
-
-@app.cell
-def _(catalog, con, mo):
-    """Maintenance — run after several writes to compact small files.
-
-    Uncomment to execute. Order matters: merge first, then expire snapshots, then cleanup.
-    """
-    _ = mo.md(
-        """
-        ```sql
-        CALL ducklake_merge_adjacent_files('{catalog}');
-        CALL ducklake_expire_snapshots('{catalog}', older_than => INTERVAL '7 days');
-        CALL ducklake_cleanup_old_files('{catalog}', cleanup_all => true);
-        ```
-        """.replace("{catalog}", catalog)
-    )
-    return
-
-
-@app.cell
-def _(engine):
-    """Close the engine on notebook shutdown."""
-    import atexit
-
-    atexit.register(engine.close)
     return
 
 

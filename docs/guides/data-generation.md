@@ -1,3 +1,8 @@
+---
+title: Data Generation
+marimo-version: 0.23.4
+---
+
 # Data Generation
 
 ## The schema

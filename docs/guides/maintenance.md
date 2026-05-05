@@ -1,3 +1,8 @@
+---
+title: Maintenance
+marimo-version: 0.23.4
+---
+
 # Maintenance and Time Travel
 
 DuckLake's snapshot model unlocks two capabilities you'll want to demo:
@@ -158,13 +163,13 @@ import marimo as mo
 
 @app.cell
 def _(catalog, con, mo):
-    """Maintenance — uncomment to compact files after many writes."""
+    \"\"\"Maintenance — uncomment to compact files after many writes.\"\"\"
     _ = mo.sql(
-        f"""
+        f\"\"\"
         CALL ducklake_merge_adjacent_files('{catalog}');
         CALL ducklake_expire_snapshots('{catalog}', older_than => INTERVAL '7 days');
         CALL ducklake_cleanup_old_files('{catalog}', cleanup_all => true);
-        """,
+        \"\"\",
         engine=con,
     )
     return

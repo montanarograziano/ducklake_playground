@@ -46,6 +46,7 @@ dev = [
     "pyarrow-stubs>=20.0.0.20251215",
     "types-pyyaml>=6.0.12.20260408",
     "ty>=0.0.33",
+    "sqlglot>=30.7.0",
 ]
 
 docs = [
