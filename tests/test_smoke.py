@@ -43,11 +43,7 @@ def test_schema_includes_id_and_event_date() -> None:
 
 def test_streaming_generator_yields_correct_row_count() -> None:
     cfg = load_config(CONFIG_PATH)
-    gen = StreamingGenerator(
-        GeneratorSpec(
-            schema_config=cfg.schema, total_rows=1000, chunk_size=300, seed=42
-        )
-    )
+    gen = StreamingGenerator(GeneratorSpec(schema_config=cfg.schema, total_rows=1000, chunk_size=300, seed=42))
     batches = list(gen.iter_batches())
     total = sum(b.num_rows for b in batches)
     assert total == 1000
@@ -57,14 +53,8 @@ def test_streaming_generator_yields_correct_row_count() -> None:
 def test_streaming_generator_is_partition_sorted() -> None:
     """event_date must be monotonically non-decreasing across the entire stream."""
     cfg = load_config(CONFIG_PATH)
-    gen = StreamingGenerator(
-        GeneratorSpec(
-            schema_config=cfg.schema, total_rows=5000, chunk_size=1000, seed=42
-        )
-    )
-    flat = np.concatenate(
-        [b.column(PARTITION_COL).to_numpy(zero_copy_only=False) for b in gen.iter_batches()]
-    )
+    gen = StreamingGenerator(GeneratorSpec(schema_config=cfg.schema, total_rows=5000, chunk_size=1000, seed=42))
+    flat = np.concatenate([b.column(PARTITION_COL).to_numpy(zero_copy_only=False) for b in gen.iter_batches()])
     assert bool(np.all(flat[:-1] <= flat[1:])), "event_date is not monotonic"
 
 
@@ -78,9 +68,7 @@ def test_generator_is_deterministic_for_fixed_seed() -> None:
 
 def test_arrow_reader_round_trip() -> None:
     cfg = load_config(CONFIG_PATH)
-    gen = StreamingGenerator(
-        GeneratorSpec(schema_config=cfg.schema, total_rows=300, chunk_size=100, seed=1)
-    )
+    gen = StreamingGenerator(GeneratorSpec(schema_config=cfg.schema, total_rows=300, chunk_size=100, seed=1))
     reader = gen.arrow_reader()
     table = pa.Table.from_batches(list(reader), schema=reader.schema)
     assert table.num_rows == 300
@@ -90,9 +78,7 @@ def test_arrow_reader_round_trip() -> None:
 def test_merge_stream_overlap_ratio() -> None:
     cfg = load_config(CONFIG_PATH)
     n = 1000
-    gen = StreamingGenerator(
-        GeneratorSpec(schema_config=cfg.schema, total_rows=n, chunk_size=300, seed=42)
-    )
+    gen = StreamingGenerator(GeneratorSpec(schema_config=cfg.schema, total_rows=n, chunk_size=300, seed=42))
     reader = gen.merge_arrow_reader(0.10)
     table = pa.Table.from_batches(list(reader), schema=reader.schema)
     ids = table.column("id").to_numpy()

@@ -42,17 +42,16 @@ dev = [
     "pytest-cov>=6.0.0",
     "ruff>=0.15.0",
     "mypy>=1.16.0",
+    "pyright>=1.1.390",
     "types-psutil>=5.9.0",
     "pyarrow-stubs>=20.0.0.20251215",
     "types-pyyaml>=6.0.12.20260408",
     "ty>=0.0.33",
     "sqlglot>=30.7.0",
+    "prek>=0.2.12",
 ]
 
-docs = [
-    "zensical>=0.0.30",
-    "mkdocstrings-python>=1.8.0",
-]
+docs = ["zensical>=0.0.30", "mkdocstrings-python>=1.8.0"]
 
 [tool.ruff]
 line-length = 120
@@ -65,11 +64,11 @@ exclude = ["site/", "notebooks/"]
 [tool.ruff.lint]
 select = ["E", "F", "B", "C4", "D", "I", "N", "RET", "SIM", "TC", "UP"]
 ignore = [
-    "D100",   # missing module docstring
-    "D107",   # missing __init__ docstring
-    "D203",   # blank line before class docstring
-    "D213",   # multi-line summary on second line
-    "E501",   # line too long
+    "D100", # missing module docstring
+    "D107", # missing __init__ docstring
+    "D203", # blank line before class docstring
+    "D213", # multi-line summary on second line
+    "E501", # line too long
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -87,6 +86,28 @@ no_implicit_optional = true
 [[tool.mypy.overrides]]
 module = "pyarrow.*"
 ignore_missing_imports = true
+
+[tool.pyright]
+pythonVersion = "3.12"
+typeCheckingMode = "basic"
+include = ["src"]
+exclude = [
+    "notebooks",
+    "site",
+    "**/__pycache__",
+    "**/.*",
+    ".venv",
+]
+reportMissingTypeStubs = false
+reportMissingImports = false
+reportPrivateImportUsage = false
+
+[tool.ty.environment]
+python-version = "3.12"
+
+[tool.ty.src]
+include = ["src"]
+exclude = ["notebooks", "site", "**/__pycache__"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

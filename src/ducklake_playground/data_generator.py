@@ -116,11 +116,12 @@ def _gen_text(n: int, avg: int, rng: np.random.Generator) -> pa.Array:
     offsets[0] = 0
     np.cumsum(lengths, out=offsets[1:])
     # The first slot is the validity bitmap (None = no nulls). pyarrow accepts None at
-    # runtime, but the stubs require Buffer; ignore the list-item complaint.
+    # runtime, but pyarrow-stubs declares the parameter as `list[Buffer]`. mypy uses
+    # `type: ignore`; ty uses its own `ty: ignore` suppression syntax.
     return pa.Array.from_buffers(
         pa.large_string(),
         n,
-        [None, pa.py_buffer(offsets), pa.py_buffer(data)],  # type: ignore[list-item]
+        [None, pa.py_buffer(offsets), pa.py_buffer(data)],  # type: ignore[list-item]  # ty: ignore[invalid-argument-type]
     )
 
 

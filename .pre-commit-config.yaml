@@ -1,0 +1,63 @@
+---
+# Run via prek (drop-in pre-commit replacement, see https://github.com/j178/prek):
+#   uv run prek install     # one-time hook install
+#   uv run prek run -a      # run all hooks against all files
+#
+# Mirror the project's `just lint` flow plus a few generic safety checks. All Python
+# checks run via `uv run` so the hooks use the project's pinned tool versions, never
+# whatever happens to be on $PATH.
+
+default_language_version:
+  python: python3.12
+default_stages: [pre-commit, pre-push]
+
+repos:
+  # Generic syntax / hygiene checks.
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+        args: [--maxkb=5000]
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+        exclude: ^docker-compose\.yml$  # compose YAML uses ${VAR:-default} which strict YAML rejects
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+  # Project-local hooks (use the pinned tools from `uv sync --all-groups`).
+  - repo: local
+    hooks:
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format --force-exclude
+        language: system
+        types_or: [python, pyi]
+
+      - id: ruff
+        name: ruff check
+        entry: uv run ruff check --no-cache --force-exclude --fix --exit-non-zero-on-fix --show-fixes
+        language: system
+        types_or: [python, pyi]
+
+      - id: mypy
+        name: mypy
+        entry: uv run mypy src
+        language: system
+        types: [python]
+        pass_filenames: false
+
+      - id: pyright
+        name: pyright
+        entry: uv run pyright src
+        language: system
+        types: [python]
+        pass_filenames: false
+
+      - id: ty
+        name: ty (Astral type checker)
+        entry: uv run ty check src
+        language: system
+        types: [python]
+        pass_filenames: false

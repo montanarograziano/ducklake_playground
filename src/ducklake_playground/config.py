@@ -190,9 +190,7 @@ def load_config(config_path: str | Path) -> PlaygroundConfig:
     # Resolve relative paths against the YAML file's directory, not cwd. This keeps the
     # data location stable across notebook entry points (Jupyter sets cwd to the notebook
     # dir; CLI runs from the repo root; both should land at the same absolute path).
-    base_path_resolved = (
-        raw_base if Path(raw_base).is_absolute() else str((path.parent / raw_base).resolve())
-    )
+    base_path_resolved = raw_base if Path(raw_base).is_absolute() else str((path.parent / raw_base).resolve())
     local = LocalConfig(
         base_path=base_path_resolved,
         ducklake_prefix=local_raw["ducklake_prefix"],

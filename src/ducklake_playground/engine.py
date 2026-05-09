@@ -123,9 +123,7 @@ class DuckLakeEngine:
         # Attach the catalog DB for postgres_query (used by get_postgres_metadata_size).
         self._pg_attach_name = f"pg_meta_{storage_mode}"
         try:
-            self._con.execute(
-                f"ATTACH '' AS {self._pg_attach_name} (TYPE POSTGRES, SECRET postgres_secret);"
-            )
+            self._con.execute(f"ATTACH '' AS {self._pg_attach_name} (TYPE POSTGRES, SECRET postgres_secret);")
         except Exception as exc:  # pragma: no cover
             logger.warning(f"Could not ATTACH Postgres catalog for size measurement: {exc}")
 
@@ -364,9 +362,7 @@ class DuckLakeEngine:
     def _qualified(self, table_name: str) -> str:
         return f"{self._catalog_name}.main.{table_name}"
 
-    def _ensure_postgres_db(
-        self, host: str, port: int, user: str, password: str, database: str
-    ) -> None:
+    def _ensure_postgres_db(self, host: str, port: int, user: str, password: str, database: str) -> None:
         """Create the catalog database in PostgreSQL if it doesn't exist."""
         import subprocess  # noqa: S404
 
@@ -403,8 +399,7 @@ class DuckLakeEngine:
             return 0
         try:
             row = self._con.execute(
-                f"SELECT * FROM postgres_query('{self._pg_attach_name}', "
-                "'SELECT pg_database_size(current_database())')"
+                f"SELECT * FROM postgres_query('{self._pg_attach_name}', 'SELECT pg_database_size(current_database())')"
             ).fetchone()
         except Exception as exc:  # pragma: no cover - best-effort
             logger.warning(f"Could not query pg_database_size: {exc}")
@@ -425,9 +420,7 @@ class DuckLakeEngine:
         try:
             self._con.execute(f"ALTER TABLE {fq} SET PARTITIONED BY ({PARTITION_COL})")
         except Exception as exc:
-            logger.warning(
-                f"Could not set partitioning via ALTER (will fall back to unpartitioned): {exc}"
-            )
+            logger.warning(f"Could not set partitioning via ALTER (will fall back to unpartitioned): {exc}")
 
     def _insert_reader(self, fq: str, reader: pa.RecordBatchReader) -> None:
         """Stream a RecordBatchReader into ``fq`` via INSERT ... SELECT * FROM <registered>."""

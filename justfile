@@ -4,19 +4,30 @@ set positional-arguments
 @help:
     just --list
 
-# Install dependencies (creates .venv via uv)
+# Install dependencies + pre-commit hooks (creates .venv via uv)
 install:
     uv sync --all-groups
+    uv run prek install --overwrite
+
+# Run all pre-commit hooks against the entire repo
+hooks:
+    uv run prek run -a
+
+# Update prek hook versions
+update-hooks:
+    uv run prek auto-update
 
 # Update dependencies
 update:
     uv sync --all-groups --upgrade
 
-# Lint + type check
+# Lint + type check (matches the pre-commit hooks; run before pushing)
 lint:
     uv run ruff format src tests
     uv run ruff check src tests --fix --unsafe-fixes
     uv run mypy src
+    uv run pyright src
+    uv run ty check src
 
 # Run unit tests (no docker required)
 test:
