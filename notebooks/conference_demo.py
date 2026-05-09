@@ -35,7 +35,7 @@ def _():
         value=config.default_storage_mode,
         label="Storage mode",
     )
-    storage_mode
+    print(storage_mode)
     return DuckLakeEngine, config, mo, storage_mode
 
 
@@ -55,7 +55,7 @@ def _(DuckLakeEngine, config, mo, storage_mode):
         f"| storage = `{config.default_storage_mode}` "
         f"| data path = `{engine.data_path}`"
     )
-    fq
+    print(fq)
     return catalog, con, fq
 
 

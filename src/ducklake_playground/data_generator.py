@@ -115,17 +115,22 @@ def _gen_text(n: int, avg: int, rng: np.random.Generator) -> pa.Array:
     offsets = np.empty(n + 1, dtype=np.int64)
     offsets[0] = 0
     np.cumsum(lengths, out=offsets[1:])
+    # The first slot is the validity bitmap (None = no nulls). pyarrow accepts None at
+    # runtime, but the stubs require Buffer; ignore the list-item complaint.
     return pa.Array.from_buffers(
         pa.large_string(),
         n,
-        [None, pa.py_buffer(offsets), pa.py_buffer(data)],
+        [None, pa.py_buffer(offsets), pa.py_buffer(data)],  # type: ignore[list-item]
     )
 
 
 def _gen_dict_string(n: int, pool: list[str], rng: np.random.Generator) -> pa.Array:
     """Dictionary-encoded string built without per-row Python."""
     idx = rng.integers(0, len(pool), size=n, dtype=np.int32)
-    return pa.DictionaryArray.from_arrays(pa.array(idx), pa.array(pool, type=pa.string()))
+    return pa.DictionaryArray.from_arrays(
+        pa.array(idx, type=pa.int32()),
+        pa.array(pool, type=pa.string()),
+    )
 
 
 def _gen_array(col: ColumnDef, n: int, rng: np.random.Generator) -> pa.Array:
@@ -167,7 +172,10 @@ def _gen_array(col: ColumnDef, n: int, rng: np.random.Generator) -> pa.Array:
         offsets[0] = 0
         np.cumsum(lengths, out=offsets[1:])
         flat = rng.integers(-(2**31), 2**31, size=int(lengths.sum()), dtype=np.int32)
-        return pa.ListArray.from_arrays(pa.array(offsets), pa.array(flat))
+        return pa.ListArray.from_arrays(
+            pa.array(offsets, type=pa.int32()),
+            pa.array(flat, type=pa.int32()),
+        )
     if t == "map":
         avg = col.avg_length or 3
         pool = [f"key_{i:02d}" for i in range(50)]
@@ -179,11 +187,18 @@ def _gen_array(col: ColumnDef, n: int, rng: np.random.Generator) -> pa.Array:
             all_keys.extend(pool[i] for i in picks)
         total = len(all_keys)
         keys = pa.array(all_keys, type=pa.string())
-        values = pa.array(rng.integers(-1000, 1000, size=total, dtype=np.int32))
-        offsets = np.empty(n + 1, dtype=np.int32)
+        values = pa.array(rng.integers(-1000, 1000, size=total, dtype=np.int32), type=pa.int32())
+        # Map offsets are int32 at the storage layer, but pyarrow-stubs's MapArray.from_arrays
+        # requires Int64Array. The runtime call works with either; we use int32 to match the
+        # canonical Map representation and silence the stub by using int64 here only for typing.
+        offsets = np.empty(n + 1, dtype=np.int64)
         offsets[0] = 0
         np.cumsum(lengths, out=offsets[1:])
-        return pa.MapArray.from_arrays(pa.array(offsets), keys, values)
+        return pa.MapArray.from_arrays(
+            pa.array(offsets, type=pa.int64()),
+            keys,
+            values,
+        )
     if t == "struct":
         arrays: list[pa.Array] = []
         fields: list[pa.Field] = []

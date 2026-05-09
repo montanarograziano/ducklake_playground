@@ -80,7 +80,7 @@ def _(DuckLakeEngine, config, mo, storage_mode):
 def _(catalog, table_name):
     """Fully qualified table name used by all SQL cells."""
     fq = f"{catalog}.main.{table_name.value}"
-    fq
+    print(fq)
     return (fq,)
 
 
