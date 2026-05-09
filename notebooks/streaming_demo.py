@@ -8,7 +8,7 @@ Open with: ``uv run marimo edit notebooks/streaming_demo.py`` (or ``just demo``)
 
 import marimo
 
-__generated_with = "0.23.4"
+__generated_with = "0.23.5"
 app = marimo.App(width="full")
 
 
@@ -84,7 +84,7 @@ def _(catalog, table_name):
     return (fq,)
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     mo.md(r"""
     Write-time DuckLake catalog options.
@@ -141,7 +141,7 @@ def _(
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(con, fq, mo):
     _ = mo.sql(
         f"""
@@ -152,7 +152,7 @@ def _(con, fq, mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(con, fq, mo):
     _df = mo.sql(
         f"""
@@ -188,7 +188,7 @@ def _(con, fq, mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(con, fq, mo):
     _df = mo.sql(
         f"""
@@ -203,7 +203,7 @@ def _(con, fq, mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(catalog, con, mo):
     _df = mo.sql(
         f"""
@@ -211,6 +211,11 @@ def _(catalog, con, mo):
         """,
         engine=con
     )
+    return
+
+
+@app.cell
+def _():
     return
 
 

@@ -1,0 +1,392 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.23.5",
+    "script_metadata_hash": null
+  },
+  "cells": [
+    {
+      "id": "Hbol",
+      "code_hash": "f43d00ddb044efacbb0e6c947a872116",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='Hbol-0' random-id='9eb5df32-3b56-ed18-87db-4d9c86ae70b7'><marimo-dropdown data-initial-value='[&quot;local&quot;]' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Storage mode&lt;/span&gt;&lt;/span&gt;&quot;' data-options='[&quot;local&quot;,&quot;s3&quot;]' data-allow-select-none='false' data-searchable='false' data-full-width='false'></marimo-dropdown></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "da9e36494abaef7a4ba46db8f793a157",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": [
+        {
+          "type": "stream",
+          "name": "stderr",
+          "text": "2026-05-09 19:31:57.082 | DEBUG    | ducklake_playground.engine:_ensure_postgres_db:391 - Database ducklake_playground_s3 already exists\n2026-05-09 19:31:57.220 | INFO     | ducklake_playground.engine:setup:142 - DuckLake engine setup complete (storage=s3, data_path=s3://warehouse/ducklake/, pg_baseline=9397.7 KB)\n",
+          "mimetype": "text/plain"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "playground_ducklake_s3.main.demo_table\n",
+          "mimetype": "text/plain"
+        }
+      ]
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "21c68cf6d8b62cac1e83dde217258f34",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='bkHC-0' random-id='ada67125-d664-aa19-3a0b-7a22fd4ad1a4'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;column_name&#92;&quot;:&#92;&quot;id&#92;&quot;,&#92;&quot;column_type&#92;&quot;:&#92;&quot;BIGINT&#92;&quot;,&#92;&quot;null&#92;&quot;:&#92;&quot;YES&#92;&quot;,&#92;&quot;key&#92;&quot;:null,&#92;&quot;default&#92;&quot;:&#92;&quot;NULL&#92;&quot;,&#92;&quot;extra&#92;&quot;:null},{&#92;&quot;column_name&#92;&quot;:&#92;&quot;event_date&#92;&quot;,&#92;&quot;column_type&#92;&quot;:&#92;&quot;DATE&#92;&quot;,&#92;&quot;null&#92;&quot;:&#92;&quot;YES&#92;&quot;,&#92;&quot;key&#92;&quot;:null,&#92;&quot;default&#92;&quot;:&#92;&quot;NULL&#92;&quot;,&#92;&quot;extra&#92;&quot;:null},{&#92;&quot;column_name&#92;&quot;:&#92;&quot;int8_col&#92;&quot;,&#92;&quot;column_type&#92;&quot;:&#92;&quot;TINYINT&#92;&quot;,&#92;&quot;null&#92;&quot;:&#92;&quot;YES&#92;&quot;,&#92;&quot;key&#92;&quot;:null,&#92;&quot;default&#92;&quot;:&#92;&quot;NULL&#92;&quot;,&#92;&quot;extra&#92;&quot;:null},{&#92;&quot;column_name&#92;&quot;:&#92;&quot;int16_col&#92;&quot;,&#92;&quot;column_type&#92;&quot;:&#92;&quot;SMALLINT&#92;&quot;,&#92;&quot;null&#92;&quot;:&#92;&quot;YES&#92;&quot;,&#92;&quot;key&#92;&quot;:null,&#92;&quot;default&#92;&quot;:&#92;&quot;NULL&#92;&quot;,&#92;&quot;extra&#92;&quot;:null},{&#92;&quot;column_name&#92;&quot;:&#92;&quot;int32_col&#92;&quot;,&#92;&quot;column_type&#92;&quot;:&#92;&quot;INTEGER&#92;&quot;,&#92;&quot;null&#92;&quot;:&#92;&quot;YES&#92;&quot;,&#92;&quot;key&#92;&quot;:null,&#92;&quot;default&#92;&quot;:&#92;&quot;NULL&#92;&quot;,&#92;&quot;extra&#92;&quot;:null},{&#92;&quot;column_name&#92;&quot;:&#92;&quot;int64_col&#92;&quot;,&#92;&quot;column_type&#92;&quot;:&#92;&quot;BIGINT&#92;&quot;,&#92;&quot;null&#92;&quot;:&#92;&quot;YES&#92;&quot;,&#92;&quot;key&#92;&quot;:null,&#92;&quot;default&#92;&quot;:&#92;&quot;NULL&#92;&quot;,&#92;&quot;extra&#92;&quot;:null},{&#92;&quot;column_name&#92;&quot;:&#92;&quot;float32_col&#92;&quot;,&#92;&quot;column_type&#92;&quot;:&#92;&quot;FLOAT&#92;&quot;,&#92;&quot;null&#92;&quot;:&#92;&quot;YES&#92;&quot;,&#92;&quot;key&#92;&quot;:null,&#92;&quot;default&#92;&quot;:&#92;&quot;NULL&#92;&quot;,&#92;&quot;extra&#92;&quot;:null},{&#92;&quot;column_name&#92;&quot;:&#92;&quot;float64_col&#92;&quot;,&#92;&quot;column_type&#92;&quot;:&#92;&quot;DOUBLE&#92;&quot;,&#92;&quot;null&#92;&quot;:&#92;&quot;YES&#92;&quot;,&#92;&quot;key&#92;&quot;:null,&#92;&quot;default&#92;&quot;:&#92;&quot;NULL&#92;&quot;,&#92;&quot;extra&#92;&quot;:null},{&#92;&quot;column_name&#92;&quot;:&#92;&quot;decimal_col&#92;&quot;,&#92;&quot;column_type&#92;&quot;:&#92;&quot;DECIMAL(18,4)&#92;&quot;,&#92;&quot;null&#92;&quot;:&#92;&quot;YES&#92;&quot;,&#92;&quot;key&#92;&quot;:null,&#92;&quot;default&#92;&quot;:&#92;&quot;NULL&#92;&quot;,&#92;&quot;extra&#92;&quot;:null},{&#92;&quot;column_name&#92;&quot;:&#92;&quot;datetime_col&#92;&quot;,&#92;&quot;column_type&#92;&quot;:&#92;&quot;TIMESTAMP&#92;&quot;,&#92;&quot;null&#92;&quot;:&#92;&quot;YES&#92;&quot;,&#92;&quot;key&#92;&quot;:null,&#92;&quot;default&#92;&quot;:&#92;&quot;NULL&#92;&quot;,&#92;&quot;extra&#92;&quot;:null}]&quot;' data-total-rows='17' data-total-columns='6' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;column_name&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;column_type&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;null&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;key&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;default&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;extra&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "a3ca05fe506ca112d9eb2a9bbe2d0495",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='lEQa-0' random-id='c0858294-4f55-8397-3da8-4fa277d2bbfe'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;total_rows&#92;&quot;:1000003,&#92;&quot;first_date&#92;&quot;:&#92;&quot;2024-01-01&#92;&quot;,&#92;&quot;last_date&#92;&quot;:&#92;&quot;2024-01-30&#92;&quot;,&#92;&quot;partitions&#92;&quot;:30}]&quot;' data-total-rows='1' data-total-columns='4' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;total_rows&quot;,[&quot;integer&quot;,&quot;i64&quot;]],[&quot;first_date&quot;,[&quot;date&quot;,&quot;date&quot;]],[&quot;last_date&quot;,[&quot;date&quot;,&quot;date&quot;]],[&quot;partitions&quot;,[&quot;integer&quot;,&quot;i64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "70a0708b0cae89371e3a8c25e5867773",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='PKri-0' random-id='940405dc-de39-96ff-69fa-63189a8ceb26'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_529&#92;&quot;,&#92;&quot;cnt&#92;&quot;:249,&#92;&quot;total&#92;&quot;:&#92;&quot;-151148723910259724750&#92;&quot;,&#92;&quot;avg_val&#92;&quot;:-19045118635920.234},{&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_305&#92;&quot;,&#92;&quot;cnt&#92;&quot;:243,&#92;&quot;total&#92;&quot;:&#92;&quot;-30540907389986659864&#92;&quot;,&#92;&quot;avg_val&#92;&quot;:92361625368642.1},{&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_922&#92;&quot;,&#92;&quot;cnt&#92;&quot;:239,&#92;&quot;total&#92;&quot;:&#92;&quot;85405002404505944155&#92;&quot;,&#92;&quot;avg_val&#92;&quot;:5423893947130.8955},{&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_800&#92;&quot;,&#92;&quot;cnt&#92;&quot;:239,&#92;&quot;total&#92;&quot;:&#92;&quot;63740955580357578695&#92;&quot;,&#92;&quot;avg_val&#92;&quot;:-14480013983969.55},{&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_686&#92;&quot;,&#92;&quot;cnt&#92;&quot;:238,&#92;&quot;total&#92;&quot;:&#92;&quot;58514410144643346574&#92;&quot;,&#92;&quot;avg_val&#92;&quot;:-15752089161641.04},{&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_174&#92;&quot;,&#92;&quot;cnt&#92;&quot;:234,&#92;&quot;total&#92;&quot;:&#92;&quot;-82304733355348137510&#92;&quot;,&#92;&quot;avg_val&#92;&quot;:-6424797130968.622},{&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_313&#92;&quot;,&#92;&quot;cnt&#92;&quot;:234,&#92;&quot;total&#92;&quot;:&#92;&quot;-32816697197540210426&#92;&quot;,&#92;&quot;avg_val&#92;&quot;:-10947332094347.64},{&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_818&#92;&quot;,&#92;&quot;cnt&#92;&quot;:233,&#92;&quot;total&#92;&quot;:&#92;&quot;-97668297955158875317&#92;&quot;,&#92;&quot;avg_val&#92;&quot;:46218896068764.28},{&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_419&#92;&quot;,&#92;&quot;cnt&#92;&quot;:232,&#92;&quot;total&#92;&quot;:&#92;&quot;-13725971426480809215&#92;&quot;,&#92;&quot;avg_val&#92;&quot;:-27865637835003.63},{&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_362&#92;&quot;,&#92;&quot;cnt&#92;&quot;:232,&#92;&quot;total&#92;&quot;:&#92;&quot;32389072972144426871&#92;&quot;,&#92;&quot;avg_val&#92;&quot;:103063394132858.28}]&quot;' data-total-rows='10' data-total-columns='4' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;varchar_col&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;cnt&quot;,[&quot;integer&quot;,&quot;i64&quot;]],[&quot;total&quot;,[&quot;number&quot;,&quot;decimal[38,0]&quot;]],[&quot;avg_val&quot;,[&quot;number&quot;,&quot;f64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Xref",
+      "code_hash": "1221f96f3d42e2b4e237c29bc8fc3ee7",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<pre class='text-xs'>shape: (1, 2)\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 explain_key   \u2506 explain_value                                                                    \u2502\n\u2502 ---           \u2506 ---                                                                              \u2502\n\u2502 str           \u2506 str                                                                              \u2502\n\u255e\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2561\n\u2502 analyzed_plan \u2506 \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                                          \u2502\n\u2502               \u2506 \u2502\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\u2502                                          \u2502\n\u2502               \u2506 \u2502\u2502    Query Profiling Information    \u2502\u2502                                          \u2502\n\u2502               \u2506 \u2502\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\u2502                                          \u2502\n\u2502               \u2506 \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518                                          \u2502\n\u2502               \u2506 EXPLAIN ANALYZE     SELECT varchar_col, COUNT(*) AS cnt     FROM                 \u2502\n\u2502               \u2506 playground_ducklake_s3.main.demo_table     WHERE event_date = DATE &#x27;2024-01-15&#x27;  \u2502\n\u2502               \u2506 GROUP BY varchar_col                                                             \u2502\n\u2502               \u2506 \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                                          \u2502\n\u2502               \u2506 \u2502\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\u2502                                          \u2502\n\u2502               \u2506 \u2502\u2502         HTTPFS HTTP Stats         \u2502\u2502                                          \u2502\n\u2502               \u2506 \u2502\u2502                                   \u2502\u2502                                          \u2502\n\u2502               \u2506 \u2502\u2502            in: 0 bytes            \u2502\u2502                                          \u2502\n\u2502               \u2506 \u2502\u2502            out: 0 bytes           \u2502\u2502                                          \u2502\n\u2502               \u2506 \u2502\u2502              #HEAD: 0             \u2502\u2502                                          \u2502\n\u2502               \u2506 \u2502\u2502              #GET: 0              \u2502\u2502                                          \u2502\n\u2502               \u2506 \u2502\u2502              #PUT: 0              \u2502\u2502                                          \u2502\n\u2502               \u2506 \u2502\u2502              #POST: 0             \u2502\u2502                                          \u2502\n\u2502               \u2506 \u2502\u2502             #DELETE: 0            \u2502\u2502                                          \u2502\n\u2502               \u2506 \u2502\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\u2502                                          \u2502\n\u2502               \u2506 \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518                                          \u2502\n\u2502               \u2506 \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                               \u2502\n\u2502               \u2506 \u2502\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\u2502                               \u2502\n\u2502               \u2506 \u2502\u2502              Total Time: 0.0268s             \u2502\u2502                               \u2502\n\u2502               \u2506 \u2502\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\u2502                               \u2502\n\u2502               \u2506 \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518                               \u2502\n\u2502               \u2506 \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                                                    \u2502\n\u2502               \u2506 \u2502           QUERY           \u2502                                                    \u2502\n\u2502               \u2506 \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518                                                    \u2502\n\u2502               \u2506 \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                                                    \u2502\n\u2502               \u2506 \u2502      EXPLAIN_ANALYZE      \u2502                                                    \u2502\n\u2502               \u2506 \u2502    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500   \u2502                                                    \u2502\n\u2502               \u2506 \u2502                           \u2502                                                    \u2502\n\u2502               \u2506 \u2502           0 rows          \u2502                                                    \u2502\n\u2502               \u2506 \u2502           0.00s           \u2502                                                    \u2502\n\u2502               \u2506 \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518                                                    \u2502\n\u2502               \u2506 \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                                                    \u2502\n\u2502               \u2506 \u2502       HASH_GROUP_BY       \u2502                                                    \u2502\n\u2502               \u2506 \u2502    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500   \u2502                                                    \u2502\n\u2502               \u2506 \u2502         Groups: #0        \u2502                                                    \u2502\n\u2502               \u2506 \u2502                           \u2502                                                    \u2502\n\u2502               \u2506 \u2502        Aggregates:        \u2502                                                    \u2502\n\u2502               \u2506 \u2502        count_star()       \u2502                                                    \u2502\n\u2502               \u2506 \u2502                           \u2502                                                    \u2502\n\u2502               \u2506 \u2502                           \u2502                                                    \u2502\n\u2502               \u2506 \u2502                           \u2502                                                    \u2502\n\u2502               \u2506 \u2502         1,000 rows        \u2502                                                    \u2502\n\u2502               \u2506 \u2502           0.00s           \u2502                                                    \u2502\n\u2502               \u2506 \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518                                                    \u2502\n\u2502               \u2506 \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                                                    \u2502\n\u2502               \u2506 \u2502         PROJECTION        \u2502                                                    \u2502\n\u2502               \u2506 \u2502    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500   \u2502                                                    \u2502\n\u2502               \u2506 \u2502        varchar_col        \u2502                                                    \u2502\n\u2502               \u2506 \u2502                           \u2502                                                    \u2502\n\u2502               \u2506 \u2502                           \u2502                                                    \u2502\n\u2502               \u2506 \u2502                           \u2502                                                    \u2502\n\u2502               \u2506 \u2502        33,336 rows        \u2502                                                    \u2502\n\u2502               \u2506 \u2502           0.00s           \u2502                                                    \u2502\n\u2502               \u2506 \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518                                                    \u2502\n\u2502               \u2506 \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                                                    \u2502\n\u2502               \u2506 \u2502         TABLE_SCAN        \u2502                                                    \u2502\n\u2502               \u2506 \u2502    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500   \u2502                                                    \u2502\n\u2502               \u2506 \u2502     Table: demo_table     \u2502                                                    \u2502\n\u2502               \u2506 \u2502                           \u2502                                                    \u2502\n\u2502               \u2506 \u2502        Projections:       \u2502                                                    \u2502\n\u2502               \u2506 \u2502        varchar_col        \u2502                                                    \u2502\n\u2502               \u2506 \u2502                           \u2502                                                    \u2502\n\u2502               \u2506 \u2502          Filters:         \u2502                                                    \u2502\n\u2502               \u2506 \u2502  event_date=&#x27;2024-01-15&#x27;: \u2502                                                    \u2502\n\u2502               \u2506 \u2502           :DATE           \u2502                                                    \u2502\n\u2502               \u2506 \u2502                           \u2502                                                    \u2502\n\u2502               \u2506 \u2502    Total Files Read: 1    \u2502                                                    \u2502\n\u2502               \u2506 \u2502                           \u2502                                                    \u2502\n\u2502               \u2506 \u2502    Inlined Tables Read:   \u2502                                                    \u2502\n\u2502               \u2506 \u2502             8             \u2502                                                    \u2502\n\u2502               \u2506 \u2502                           \u2502                                                    \u2502\n\u2502               \u2506 \u2502        Filename(s):       \u2502                                                    \u2502\n\u2502               \u2506 \u2502  s3://warehouse/ducklake  \u2502                                                    \u2502\n\u2502               \u2506 \u2502      /main/demo_table     \u2502                                                    \u2502\n\u2502               \u2506 \u2502   /event_date=2024-01-15  \u2502                                                    \u2502\n\u2502               \u2506 \u2502  /ducklake-019e0dc1-a457  \u2502                                                    \u2502\n\u2502               \u2506 \u2502  -717c-9b86-79836c20746e  \u2502                                                    \u2502\n\u2502               \u2506 \u2502          .parquet         \u2502                                                    \u2502\n\u2502               \u2506 \u2502                           \u2502                                                    \u2502\n\u2502               \u2506 \u2502                           \u2502                                                    \u2502\n\u2502               \u2506 \u2502                           \u2502                                                    \u2502\n\u2502               \u2506 \u2502        33,336 rows        \u2502                                                    \u2502\n\u2502               \u2506 \u2502           0.03s           \u2502                                                    \u2502\n\u2502               \u2506 \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518                                                    \u2502\n\u2502               \u2506                                                                                  \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518</pre>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "SFPL",
+      "code_hash": "681983239d5b58305d3ae93649d084d2",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\"><strong>Before transaction:</strong> 1,000,003 rows | snapshot v48</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "BYtC",
+      "code_hash": "b117e6f3e5a7f7c023f0d8b07eb73d54",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\"><strong>Transaction COMMITTED</strong></span>\n<ul>\n<li>Before: 1,000,003 rows (v48)</li>\n<li>After: 1,000,005 rows (v49, +2)</li>\n<li>Both INSERT and UPDATE landed atomically in one DuckLake snapshot</li>\n</ul></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "RGSE",
+      "code_hash": "458facc74141da14e7875805a92ab7cf",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='RGSE-0' random-id='83c088f3-5670-857b-77ab-a0827505feed'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;id&#92;&quot;:900000001,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-15&#92;&quot;,&#92;&quot;int64_col&#92;&quot;:9999,&#92;&quot;float64_col&#92;&quot;:37.800000000000004,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_042&#92;&quot;},{&#92;&quot;id&#92;&quot;:900000001,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-15&#92;&quot;,&#92;&quot;int64_col&#92;&quot;:1499,&#92;&quot;float64_col&#92;&quot;:89.955,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_042&#92;&quot;},{&#92;&quot;id&#92;&quot;:900000002,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-15&#92;&quot;,&#92;&quot;int64_col&#92;&quot;:49,&#92;&quot;float64_col&#92;&quot;:19.99,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_007&#92;&quot;},{&#92;&quot;id&#92;&quot;:900000002,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-15&#92;&quot;,&#92;&quot;int64_col&#92;&quot;:49,&#92;&quot;float64_col&#92;&quot;:19.99,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_007&#92;&quot;}]&quot;' data-total-rows='4' data-total-columns='5' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;id&quot;,[&quot;integer&quot;,&quot;i64&quot;]],[&quot;event_date&quot;,[&quot;date&quot;,&quot;date&quot;]],[&quot;int64_col&quot;,[&quot;integer&quot;,&quot;i64&quot;]],[&quot;float64_col&quot;,[&quot;number&quot;,&quot;f64&quot;]],[&quot;varchar_col&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Kclp",
+      "code_hash": "03e27cb71a9c5a364151af1edb33cd26",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='Kclp-0' random-id='85548fa4-c48f-f50a-609b-b6d0a3fec106'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;snapshot_id&#92;&quot;:49,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:32:02.404338+02:00&#92;&quot;,&#92;&quot;schema_version&#92;&quot;:32,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;inlined_insert&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]},{&#92;&quot;key&#92;&quot;:&#92;&quot;inlined_delete&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}],&#92;&quot;author&#92;&quot;:null,&#92;&quot;commit_message&#92;&quot;:null,&#92;&quot;commit_extra_info&#92;&quot;:null},{&#92;&quot;snapshot_id&#92;&quot;:48,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:24:19.066608+02:00&#92;&quot;,&#92;&quot;schema_version&#92;&quot;:32,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;inlined_insert&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]},{&#92;&quot;key&#92;&quot;:&#92;&quot;inlined_delete&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}],&#92;&quot;author&#92;&quot;:null,&#92;&quot;commit_message&#92;&quot;:null,&#92;&quot;commit_extra_info&#92;&quot;:null},{&#92;&quot;snapshot_id&#92;&quot;:47,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:24:17.657272+02:00&#92;&quot;,&#92;&quot;schema_version&#92;&quot;:32,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;tables_altered&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}],&#92;&quot;author&#92;&quot;:null,&#92;&quot;commit_message&#92;&quot;:null,&#92;&quot;commit_extra_info&#92;&quot;:null},{&#92;&quot;snapshot_id&#92;&quot;:46,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:24:16.634058+02:00&#92;&quot;,&#92;&quot;schema_version&#92;&quot;:31,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;tables_altered&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}],&#92;&quot;author&#92;&quot;:null,&#92;&quot;commit_message&#92;&quot;:null,&#92;&quot;commit_extra_info&#92;&quot;:null},{&#92;&quot;snapshot_id&#92;&quot;:45,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:24:14.015836+02:00&#92;&quot;,&#92;&quot;schema_version&#92;&quot;:30,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;tables_altered&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}],&#92;&quot;author&#92;&quot;:null,&#92;&quot;commit_message&#92;&quot;:null,&#92;&quot;commit_extra_info&#92;&quot;:null},{&#92;&quot;snapshot_id&#92;&quot;:44,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:22:59.847813+02:00&#92;&quot;,&#92;&quot;schema_version&#92;&quot;:29,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;tables_inserted_into&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]},{&#92;&quot;key&#92;&quot;:&#92;&quot;inlined_insert&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]},{&#92;&quot;key&#92;&quot;:&#92;&quot;inlined_delete&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}],&#92;&quot;author&#92;&quot;:null,&#92;&quot;commit_message&#92;&quot;:null,&#92;&quot;commit_extra_info&#92;&quot;:null},{&#92;&quot;snapshot_id&#92;&quot;:43,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:22:59.800663+02:00&#92;&quot;,&#92;&quot;schema_version&#92;&quot;:29,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;tables_altered&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}],&#92;&quot;author&#92;&quot;:null,&#92;&quot;commit_message&#92;&quot;:null,&#92;&quot;commit_extra_info&#92;&quot;:null},{&#92;&quot;snapshot_id&#92;&quot;:42,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:22:59.773642+02:00&#92;&quot;,&#92;&quot;schema_version&#92;&quot;:28,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;tables_altered&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}],&#92;&quot;author&#92;&quot;:null,&#92;&quot;commit_message&#92;&quot;:null,&#92;&quot;commit_extra_info&#92;&quot;:null},{&#92;&quot;snapshot_id&#92;&quot;:41,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:22:59.660476+02:00&#92;&quot;,&#92;&quot;schema_version&#92;&quot;:27,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;tables_altered&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}],&#92;&quot;author&#92;&quot;:null,&#92;&quot;commit_message&#92;&quot;:null,&#92;&quot;commit_extra_info&#92;&quot;:null},{&#92;&quot;snapshot_id&#92;&quot;:40,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:22:56.150945+02:00&#92;&quot;,&#92;&quot;schema_version&#92;&quot;:26,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;inlined_insert&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}],&#92;&quot;author&#92;&quot;:null,&#92;&quot;commit_message&#92;&quot;:null,&#92;&quot;commit_extra_info&#92;&quot;:null}]&quot;' data-total-rows='10' data-total-columns='7' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;snapshot_id&quot;,[&quot;integer&quot;,&quot;i64&quot;]],[&quot;snapshot_time&quot;,[&quot;datetime&quot;,&quot;datetime[\u03bcs, Europe/Rome]&quot;]],[&quot;schema_version&quot;,[&quot;integer&quot;,&quot;i64&quot;]],[&quot;changes&quot;,[&quot;unknown&quot;,&quot;list[struct[2]]&quot;]],[&quot;author&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;commit_message&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;commit_extra_info&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "emfo",
+      "code_hash": "75a376833791e36f2e17e2df0a2484f6",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\"><strong>Before-tx snapshot:</strong> v48 | <strong>After-tx snapshot:</strong> v49</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Hstk",
+      "code_hash": "fa0986fc3211cc50e337c1d58cbb2f12",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='Hstk-0' random-id='668b6208-05b1-6719-16bc-ec7f83a4a4bf'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;row_count_before_tx&#92;&quot;:1000003}]&quot;' data-total-rows='1' data-total-columns='1' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;row_count_before_tx&quot;,[&quot;integer&quot;,&quot;i64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "nWHF",
+      "code_hash": "8bbfdf0ccc52c5f8e165b228d596b4cb",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='nWHF-0' random-id='72b8366a-893b-5b2a-e01a-32f2bdabe573'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;id&#92;&quot;:900000002,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-15&#92;&quot;,&#92;&quot;float64_col&#92;&quot;:19.99},{&#92;&quot;id&#92;&quot;:900000001,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-15&#92;&quot;,&#92;&quot;float64_col&#92;&quot;:42.0}]&quot;' data-total-rows='2' data-total-columns='3' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;id&quot;,[&quot;integer&quot;,&quot;i64&quot;]],[&quot;event_date&quot;,[&quot;date&quot;,&quot;date&quot;]],[&quot;float64_col&quot;,[&quot;number&quot;,&quot;f64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "iLit",
+      "code_hash": "e4bbac7be34d523fd89a39c5c51024aa",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Change data feed: what changed between the two snapshots?</span>\n<span class=\"paragraph\">Returns INSERT, UPDATE_BEFORE, UPDATE_AFTER rows with change_type column.\nThis is DuckLake's built-in CDC \u2014 no Kafka or external tooling required.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ZHCJ",
+      "code_hash": "5a2f6f607e101cb10c75f8af7fcd9f84",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='ZHCJ-0' random-id='da08d8ea-6d52-40ce-cbf7-2ded19a65a3c'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;snapshot_id&#92;&quot;:49,&#92;&quot;rowid&#92;&quot;:1000004,&#92;&quot;change_type&#92;&quot;:&#92;&quot;insert&#92;&quot;,&#92;&quot;id&#92;&quot;:900000001,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-15&#92;&quot;,&#92;&quot;int8_col&#92;&quot;:null,&#92;&quot;int16_col&#92;&quot;:null,&#92;&quot;int32_col&#92;&quot;:null,&#92;&quot;int64_col&#92;&quot;:1499,&#92;&quot;float32_col&#92;&quot;:null,&#92;&quot;float64_col&#92;&quot;:89.955,&#92;&quot;decimal_col&#92;&quot;:null,&#92;&quot;datetime_col&#92;&quot;:null,&#92;&quot;timestamp_col&#92;&quot;:null,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_042&#92;&quot;,&#92;&quot;text_col&#92;&quot;:null,&#92;&quot;bool_col&#92;&quot;:null,&#92;&quot;list_col&#92;&quot;:null,&#92;&quot;struct_col&#92;&quot;:null,&#92;&quot;map_col&#92;&quot;:[]},{&#92;&quot;snapshot_id&#92;&quot;:49,&#92;&quot;rowid&#92;&quot;:1000003,&#92;&quot;change_type&#92;&quot;:&#92;&quot;insert&#92;&quot;,&#92;&quot;id&#92;&quot;:900000002,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-15&#92;&quot;,&#92;&quot;int8_col&#92;&quot;:null,&#92;&quot;int16_col&#92;&quot;:null,&#92;&quot;int32_col&#92;&quot;:null,&#92;&quot;int64_col&#92;&quot;:49,&#92;&quot;float32_col&#92;&quot;:null,&#92;&quot;float64_col&#92;&quot;:19.99,&#92;&quot;decimal_col&#92;&quot;:null,&#92;&quot;datetime_col&#92;&quot;:null,&#92;&quot;timestamp_col&#92;&quot;:null,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_007&#92;&quot;,&#92;&quot;text_col&#92;&quot;:null,&#92;&quot;bool_col&#92;&quot;:null,&#92;&quot;list_col&#92;&quot;:null,&#92;&quot;struct_col&#92;&quot;:null,&#92;&quot;map_col&#92;&quot;:[]},{&#92;&quot;snapshot_id&#92;&quot;:49,&#92;&quot;rowid&#92;&quot;:1000001,&#92;&quot;change_type&#92;&quot;:&#92;&quot;update_postimage&#92;&quot;,&#92;&quot;id&#92;&quot;:900000001,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-15&#92;&quot;,&#92;&quot;int8_col&#92;&quot;:null,&#92;&quot;int16_col&#92;&quot;:null,&#92;&quot;int32_col&#92;&quot;:null,&#92;&quot;int64_col&#92;&quot;:9999,&#92;&quot;float32_col&#92;&quot;:null,&#92;&quot;float64_col&#92;&quot;:37.800000000000004,&#92;&quot;decimal_col&#92;&quot;:null,&#92;&quot;datetime_col&#92;&quot;:null,&#92;&quot;timestamp_col&#92;&quot;:null,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_042&#92;&quot;,&#92;&quot;text_col&#92;&quot;:null,&#92;&quot;bool_col&#92;&quot;:null,&#92;&quot;list_col&#92;&quot;:null,&#92;&quot;struct_col&#92;&quot;:null,&#92;&quot;map_col&#92;&quot;:[]},{&#92;&quot;snapshot_id&#92;&quot;:48,&#92;&quot;rowid&#92;&quot;:1000001,&#92;&quot;change_type&#92;&quot;:&#92;&quot;update_postimage&#92;&quot;,&#92;&quot;id&#92;&quot;:900000001,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-15&#92;&quot;,&#92;&quot;int8_col&#92;&quot;:null,&#92;&quot;int16_col&#92;&quot;:null,&#92;&quot;int32_col&#92;&quot;:null,&#92;&quot;int64_col&#92;&quot;:9999,&#92;&quot;float32_col&#92;&quot;:null,&#92;&quot;float64_col&#92;&quot;:42.0,&#92;&quot;decimal_col&#92;&quot;:null,&#92;&quot;datetime_col&#92;&quot;:null,&#92;&quot;timestamp_col&#92;&quot;:null,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_042&#92;&quot;,&#92;&quot;text_col&#92;&quot;:null,&#92;&quot;bool_col&#92;&quot;:null,&#92;&quot;list_col&#92;&quot;:null,&#92;&quot;struct_col&#92;&quot;:null,&#92;&quot;map_col&#92;&quot;:[]},{&#92;&quot;snapshot_id&#92;&quot;:48,&#92;&quot;rowid&#92;&quot;:1000002,&#92;&quot;change_type&#92;&quot;:&#92;&quot;update_postimage&#92;&quot;,&#92;&quot;id&#92;&quot;:999999999,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-20&#92;&quot;,&#92;&quot;int8_col&#92;&quot;:null,&#92;&quot;int16_col&#92;&quot;:null,&#92;&quot;int32_col&#92;&quot;:null,&#92;&quot;int64_col&#92;&quot;:7777,&#92;&quot;float32_col&#92;&quot;:null,&#92;&quot;float64_col&#92;&quot;:55.5,&#92;&quot;decimal_col&#92;&quot;:null,&#92;&quot;datetime_col&#92;&quot;:null,&#92;&quot;timestamp_col&#92;&quot;:null,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_001&#92;&quot;,&#92;&quot;text_col&#92;&quot;:null,&#92;&quot;bool_col&#92;&quot;:null,&#92;&quot;list_col&#92;&quot;:null,&#92;&quot;struct_col&#92;&quot;:null,&#92;&quot;map_col&#92;&quot;:[]},{&#92;&quot;snapshot_id&#92;&quot;:48,&#92;&quot;rowid&#92;&quot;:1000001,&#92;&quot;change_type&#92;&quot;:&#92;&quot;update_preimage&#92;&quot;,&#92;&quot;id&#92;&quot;:900000001,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-15&#92;&quot;,&#92;&quot;int8_col&#92;&quot;:null,&#92;&quot;int16_col&#92;&quot;:null,&#92;&quot;int32_col&#92;&quot;:null,&#92;&quot;int64_col&#92;&quot;:9999,&#92;&quot;float32_col&#92;&quot;:null,&#92;&quot;float64_col&#92;&quot;:42.0,&#92;&quot;decimal_col&#92;&quot;:null,&#92;&quot;datetime_col&#92;&quot;:null,&#92;&quot;timestamp_col&#92;&quot;:null,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_042&#92;&quot;,&#92;&quot;text_col&#92;&quot;:null,&#92;&quot;bool_col&#92;&quot;:null,&#92;&quot;list_col&#92;&quot;:null,&#92;&quot;struct_col&#92;&quot;:null,&#92;&quot;map_col&#92;&quot;:[]},{&#92;&quot;snapshot_id&#92;&quot;:49,&#92;&quot;rowid&#92;&quot;:1000001,&#92;&quot;change_type&#92;&quot;:&#92;&quot;update_preimage&#92;&quot;,&#92;&quot;id&#92;&quot;:900000001,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-15&#92;&quot;,&#92;&quot;int8_col&#92;&quot;:null,&#92;&quot;int16_col&#92;&quot;:null,&#92;&quot;int32_col&#92;&quot;:null,&#92;&quot;int64_col&#92;&quot;:9999,&#92;&quot;float32_col&#92;&quot;:null,&#92;&quot;float64_col&#92;&quot;:42.0,&#92;&quot;decimal_col&#92;&quot;:null,&#92;&quot;datetime_col&#92;&quot;:null,&#92;&quot;timestamp_col&#92;&quot;:null,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_042&#92;&quot;,&#92;&quot;text_col&#92;&quot;:null,&#92;&quot;bool_col&#92;&quot;:null,&#92;&quot;list_col&#92;&quot;:null,&#92;&quot;struct_col&#92;&quot;:null,&#92;&quot;map_col&#92;&quot;:[]},{&#92;&quot;snapshot_id&#92;&quot;:48,&#92;&quot;rowid&#92;&quot;:1000002,&#92;&quot;change_type&#92;&quot;:&#92;&quot;update_preimage&#92;&quot;,&#92;&quot;id&#92;&quot;:999999999,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-20&#92;&quot;,&#92;&quot;int8_col&#92;&quot;:null,&#92;&quot;int16_col&#92;&quot;:null,&#92;&quot;int32_col&#92;&quot;:null,&#92;&quot;int64_col&#92;&quot;:7777,&#92;&quot;float32_col&#92;&quot;:null,&#92;&quot;float64_col&#92;&quot;:55.5,&#92;&quot;decimal_col&#92;&quot;:null,&#92;&quot;datetime_col&#92;&quot;:null,&#92;&quot;timestamp_col&#92;&quot;:null,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_001&#92;&quot;,&#92;&quot;text_col&#92;&quot;:null,&#92;&quot;bool_col&#92;&quot;:null,&#92;&quot;list_col&#92;&quot;:null,&#92;&quot;struct_col&#92;&quot;:null,&#92;&quot;map_col&#92;&quot;:[]}]&quot;' data-total-rows='8' data-total-columns='20' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;snapshot_id&quot;,[&quot;integer&quot;,&quot;i64&quot;]],[&quot;rowid&quot;,[&quot;integer&quot;,&quot;i64&quot;]],[&quot;change_type&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;id&quot;,[&quot;integer&quot;,&quot;i64&quot;]],[&quot;event_date&quot;,[&quot;date&quot;,&quot;date&quot;]],[&quot;int8_col&quot;,[&quot;integer&quot;,&quot;i8&quot;]],[&quot;int16_col&quot;,[&quot;integer&quot;,&quot;i16&quot;]],[&quot;int32_col&quot;,[&quot;integer&quot;,&quot;i32&quot;]],[&quot;int64_col&quot;,[&quot;integer&quot;,&quot;i64&quot;]],[&quot;float32_col&quot;,[&quot;number&quot;,&quot;f32&quot;]],[&quot;float64_col&quot;,[&quot;number&quot;,&quot;f64&quot;]],[&quot;decimal_col&quot;,[&quot;number&quot;,&quot;decimal[18,4]&quot;]],[&quot;datetime_col&quot;,[&quot;datetime&quot;,&quot;datetime[\u03bcs]&quot;]],[&quot;timestamp_col&quot;,[&quot;datetime&quot;,&quot;datetime[\u03bcs, Europe/Rome]&quot;]],[&quot;varchar_col&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;text_col&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;bool_col&quot;,[&quot;boolean&quot;,&quot;bool&quot;]],[&quot;list_col&quot;,[&quot;unknown&quot;,&quot;list[i32]&quot;]],[&quot;struct_col&quot;,[&quot;unknown&quot;,&quot;struct[3]&quot;]],[&quot;map_col&quot;,[&quot;unknown&quot;,&quot;list[struct[2]]&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ROlb",
+      "code_hash": "17e84499e530e2d482fc7c6b5be4f8c5",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "qnkX",
+      "code_hash": "9769248004cfae79c4d9ada85c9b772a",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='qnkX-0' random-id='5f7708bf-e9ea-5ec6-867d-b089d2de51aa'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;id&#92;&quot;:1,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-01&#92;&quot;,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_270&#92;&quot;,&#92;&quot;priority&#92;&quot;:&#92;&quot;normal&#92;&quot;},{&#92;&quot;id&#92;&quot;:2,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-01&#92;&quot;,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_947&#92;&quot;,&#92;&quot;priority&#92;&quot;:&#92;&quot;normal&#92;&quot;},{&#92;&quot;id&#92;&quot;:3,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-01&#92;&quot;,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_260&#92;&quot;,&#92;&quot;priority&#92;&quot;:&#92;&quot;normal&#92;&quot;},{&#92;&quot;id&#92;&quot;:900000001,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-15&#92;&quot;,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_042&#92;&quot;,&#92;&quot;priority&#92;&quot;:&#92;&quot;normal&#92;&quot;},{&#92;&quot;id&#92;&quot;:900000001,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-15&#92;&quot;,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_042&#92;&quot;,&#92;&quot;priority&#92;&quot;:&#92;&quot;normal&#92;&quot;}]&quot;' data-total-rows='5' data-total-columns='4' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;id&quot;,[&quot;integer&quot;,&quot;i64&quot;]],[&quot;event_date&quot;,[&quot;date&quot;,&quot;date&quot;]],[&quot;varchar_col&quot;,[&quot;string&quot;,&quot;str&quot;]],[&quot;priority&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "TqIu",
+      "code_hash": "b824413a6bdd2668b0e03ba41f71a1e4",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Vxnm",
+      "code_hash": "bb71d911e038563d09fe7e2625981909",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "DnEU",
+      "code_hash": "1349932f301817efd816a8b36bb0f182",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\"><strong>MERGE complete.</strong> id=900000001 updated, id=999999999 inserted.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ulZA",
+      "code_hash": "d9fcbde47fbc4335547c673dbdb2c2fe",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='ulZA-0' random-id='bd7faead-25c4-4caa-7821-57eb23f14186'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;id&#92;&quot;:900000001,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-15&#92;&quot;,&#92;&quot;int64_col&#92;&quot;:9999,&#92;&quot;float64_col&#92;&quot;:42.0,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_042&#92;&quot;},{&#92;&quot;id&#92;&quot;:900000001,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-15&#92;&quot;,&#92;&quot;int64_col&#92;&quot;:9999,&#92;&quot;float64_col&#92;&quot;:42.0,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_042&#92;&quot;},{&#92;&quot;id&#92;&quot;:999999999,&#92;&quot;event_date&#92;&quot;:&#92;&quot;2024-01-20&#92;&quot;,&#92;&quot;int64_col&#92;&quot;:7777,&#92;&quot;float64_col&#92;&quot;:55.5,&#92;&quot;varchar_col&#92;&quot;:&#92;&quot;value_001&#92;&quot;}]&quot;' data-total-rows='3' data-total-columns='5' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;id&quot;,[&quot;integer&quot;,&quot;i64&quot;]],[&quot;event_date&quot;,[&quot;date&quot;,&quot;date&quot;]],[&quot;int64_col&quot;,[&quot;integer&quot;,&quot;i64&quot;]],[&quot;float64_col&quot;,[&quot;number&quot;,&quot;f64&quot;]],[&quot;varchar_col&quot;,[&quot;string&quot;,&quot;str&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ecfG",
+      "code_hash": "c914da601d9f85305c6b0d57d97fe9fa",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='ecfG-0' random-id='754a5a22-310e-91f1-df1c-c55d96a9a9a6'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;total_files&#92;&quot;:31,&#92;&quot;total_mb&#92;&quot;:170.84,&#92;&quot;avg_file_mb&#92;&quot;:5.51,&#92;&quot;min_file_mb&#92;&quot;:0.0,&#92;&quot;max_file_mb&#92;&quot;:5.7}]&quot;' data-total-rows='1' data-total-columns='5' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;total_files&quot;,[&quot;integer&quot;,&quot;i64&quot;]],[&quot;total_mb&quot;,[&quot;number&quot;,&quot;f64&quot;]],[&quot;avg_file_mb&quot;,[&quot;number&quot;,&quot;f64&quot;]],[&quot;min_file_mb&quot;,[&quot;number&quot;,&quot;f64&quot;]],[&quot;max_file_mb&quot;,[&quot;number&quot;,&quot;f64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Pvdt",
+      "code_hash": "c0c1689392e0269885bb13fa5146c8ee",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\"><strong><code>ducklake_merge_adjacent_files</code> complete.</strong> Small files merged.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ZBYS",
+      "code_hash": "c9ba3df60956429153d6ef995bd17cda",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='ZBYS-0' random-id='ecae8010-9127-34d2-e302-9fe276bcb319'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;total_files&#92;&quot;:31,&#92;&quot;total_mb&#92;&quot;:170.84,&#92;&quot;avg_file_mb&#92;&quot;:5.51}]&quot;' data-total-rows='1' data-total-columns='3' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;total_files&quot;,[&quot;integer&quot;,&quot;i64&quot;]],[&quot;total_mb&quot;,[&quot;number&quot;,&quot;f64&quot;]],[&quot;avg_file_mb&quot;,[&quot;number&quot;,&quot;f64&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='false' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "aLJB",
+      "code_hash": "273499d488b1b5be2d3d83d6e058d0be",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\"><strong><code>ducklake_expire_snapshots</code> complete.</strong> Old versions pruned from catalog.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "nHfw",
+      "code_hash": "c55fddbc1e10dd1d803f625ccafd88ae",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\"><strong><code>ducklake_cleanup_old_files</code> complete.</strong> Unreferenced Parquet files deleted.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "xXTn",
+      "code_hash": "031f807e1ca31d0cc69d31557b97afdd",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='xXTn-0' random-id='e092ca87-dfa4-2200-adce-baf0bcf1e7a1'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;snapshot_id&#92;&quot;:53,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:32:09.895903+02:00&#92;&quot;,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;inlined_insert&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]},{&#92;&quot;key&#92;&quot;:&#92;&quot;inlined_delete&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}]},{&#92;&quot;snapshot_id&#92;&quot;:52,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:32:09.356655+02:00&#92;&quot;,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;tables_altered&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}]},{&#92;&quot;snapshot_id&#92;&quot;:51,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:32:08.968753+02:00&#92;&quot;,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;tables_altered&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}]},{&#92;&quot;snapshot_id&#92;&quot;:50,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:32:08.092349+02:00&#92;&quot;,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;tables_altered&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}]},{&#92;&quot;snapshot_id&#92;&quot;:49,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:32:02.404338+02:00&#92;&quot;,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;inlined_insert&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]},{&#92;&quot;key&#92;&quot;:&#92;&quot;inlined_delete&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}]},{&#92;&quot;snapshot_id&#92;&quot;:48,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:24:19.066608+02:00&#92;&quot;,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;inlined_insert&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]},{&#92;&quot;key&#92;&quot;:&#92;&quot;inlined_delete&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}]},{&#92;&quot;snapshot_id&#92;&quot;:47,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:24:17.657272+02:00&#92;&quot;,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;tables_altered&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}]},{&#92;&quot;snapshot_id&#92;&quot;:46,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:24:16.634058+02:00&#92;&quot;,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;tables_altered&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}]},{&#92;&quot;snapshot_id&#92;&quot;:45,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:24:14.015836+02:00&#92;&quot;,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;tables_altered&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}]},{&#92;&quot;snapshot_id&#92;&quot;:44,&#92;&quot;snapshot_time&#92;&quot;:&#92;&quot;2026-05-09 19:22:59.847813+02:00&#92;&quot;,&#92;&quot;changes&#92;&quot;:[{&#92;&quot;key&#92;&quot;:&#92;&quot;tables_inserted_into&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]},{&#92;&quot;key&#92;&quot;:&#92;&quot;inlined_insert&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]},{&#92;&quot;key&#92;&quot;:&#92;&quot;inlined_delete&#92;&quot;,&#92;&quot;value&#92;&quot;:[&#92;&quot;7&#92;&quot;]}]}]&quot;' data-total-rows='10' data-total-columns='3' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;snapshot_id&quot;,[&quot;integer&quot;,&quot;i64&quot;]],[&quot;snapshot_time&quot;,[&quot;datetime&quot;,&quot;datetime[\u03bcs, Europe/Rome]&quot;]],[&quot;changes&quot;,[&quot;unknown&quot;,&quot;list[struct[2]]&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='false' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "AjVT",
+      "code_hash": "f662d72ffabe2c2ce84b3606da52beb3",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "sGDg",
+      "code_hash": null,
+      "outputs": [],
+      "console": []
+    }
+  ]
+}

@@ -19,6 +19,7 @@ dependencies = [
     "psutil>=5.9.0",
     "marimo>=0.23.0",
     "botocore>=1.39.0",
+    "obstore>=0.9.4",
 ]
 
 [project.urls]
@@ -91,13 +92,7 @@ ignore_missing_imports = true
 pythonVersion = "3.12"
 typeCheckingMode = "basic"
 include = ["src"]
-exclude = [
-    "notebooks",
-    "site",
-    "**/__pycache__",
-    "**/.*",
-    ".venv",
-]
+exclude = ["notebooks", "site", "**/__pycache__", "**/.*", ".venv"]
 reportMissingTypeStubs = false
 reportMissingImports = false
 reportPrivateImportUsage = false
@@ -115,3 +110,6 @@ python_files = ["test_*.py"]
 markers = [
     "integration: tests requiring docker-compose (Postgres + optionally MinIO)",
 ]
+
+[tool.marimo.runtime]
+auto_instantiate = false

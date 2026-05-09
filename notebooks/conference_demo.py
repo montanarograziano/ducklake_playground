@@ -10,7 +10,7 @@ Open with: ``uv run marimo edit notebooks/conference_demo.py``
 
 import marimo
 
-__generated_with = "0.23.4"
+__generated_with = "0.23.5"
 app = marimo.App(width="full")
 
 
@@ -35,7 +35,7 @@ def _():
         value=config.default_storage_mode,
         label="Storage mode",
     )
-    print(storage_mode)
+    storage_mode
     return DuckLakeEngine, config, mo, storage_mode
 
 
@@ -56,7 +56,7 @@ def _(DuckLakeEngine, config, mo, storage_mode):
         f"| data path = `{engine.data_path}`"
     )
     print(fq)
-    return catalog, con, fq
+    return TABLE, catalog, con, fq
 
 
 @app.cell
@@ -85,7 +85,7 @@ def _(con, fq, mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(con, fq, mo):
     _df = mo.sql(
         f"""
@@ -256,7 +256,7 @@ def _(con, fq, mo, pre_snapshot):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     mo.md(r"""
     Change data feed: what changed between the two snapshots?
@@ -268,7 +268,7 @@ def _(mo):
 
 
 @app.cell
-def _(catalog, con, mo, post_snapshot, pre_snapshot, TABLE):
+def _(TABLE, catalog, con, mo, post_snapshot, pre_snapshot):
     _df = mo.sql(
         f"""
         SELECT *
@@ -276,7 +276,7 @@ def _(catalog, con, mo, post_snapshot, pre_snapshot, TABLE):
         ORDER BY change_type, id
         LIMIT 20
         """,
-        engine=con,
+        engine=con
     )
     return
 
@@ -392,18 +392,17 @@ def _(con, fq, mo):
 
 
 @app.cell
-def _(catalog, con, mo):
+def _(TABLE, catalog, con, mo):
     """Show file statistics before compaction."""
 
     _ = mo.sql(
         f"""
-        SELECT COUNT(*) AS total_files,
-               SUM(record_count) AS total_records,
-               ROUND(SUM(file_size_bytes) / 1e6, 2) AS total_mb,
-               ROUND(AVG(file_size_bytes) / 1e6, 2) AS avg_file_mb,
-               ROUND(MIN(file_size_bytes) / 1e6, 2) AS min_file_mb,
-               ROUND(MAX(file_size_bytes) / 1e6, 2) AS max_file_mb
-        FROM {catalog}.ducklake_scan()
+        SELECT COUNT(*)                                    AS total_files,
+               ROUND(SUM(data_file_size_bytes) / 1e6, 2)  AS total_mb,
+               ROUND(AVG(data_file_size_bytes) / 1e6, 2)  AS avg_file_mb,
+               ROUND(MIN(data_file_size_bytes) / 1e6, 2)  AS min_file_mb,
+               ROUND(MAX(data_file_size_bytes) / 1e6, 2)  AS max_file_mb
+        FROM ducklake_list_files('{catalog}', '{TABLE}')
         """,
         engine=con,
     )
@@ -424,16 +423,15 @@ def _(catalog, con, mo):
 
 
 @app.cell
-def _(catalog, con, mo):
+def _(TABLE, catalog, con, mo):
     """File statistics after compaction — fewer, larger files."""
 
     _ = mo.sql(
         f"""
-        SELECT COUNT(*) AS total_files,
-               SUM(record_count) AS total_records,
-               ROUND(SUM(file_size_bytes) / 1e6, 2) AS total_mb,
-               ROUND(AVG(file_size_bytes) / 1e6, 2) AS avg_file_mb
-        FROM {catalog}.files()
+        SELECT COUNT(*)                                    AS total_files,
+               ROUND(SUM(data_file_size_bytes) / 1e6, 2)  AS total_mb,
+               ROUND(AVG(data_file_size_bytes) / 1e6, 2)  AS avg_file_mb
+        FROM ducklake_list_files('{catalog}', '{TABLE}')
         """,
         engine=con,
     )
@@ -448,9 +446,10 @@ def _(catalog, con, mo):
     longer be used for time travel.
     """
 
-    # Expire snapshots older than 1 day (aggressive for demo purposes)
+    # Expire snapshots older than 1 day (aggressive for demo purposes).
+    # `older_than` expects a TIMESTAMP, so compute it from `now() - INTERVAL`.
     con.execute(
-        f"CALL ducklake_expire_snapshots('{catalog}', older_than => INTERVAL '1 day')"
+        f"CALL ducklake_expire_snapshots('{catalog}', older_than => now() - INTERVAL '1 day')"
     )
     mo.md(
         "**`ducklake_expire_snapshots` complete.** Old versions pruned from catalog."
@@ -488,21 +487,18 @@ def _(catalog, con, mo):
 
 
 @app.cell
-def _(fq, mo):
-    """Remove rows we inserted during the demo (keep the original dataset intact).
-
-    Uncomment and run after the presentation to restore the table to its
-    pre-demo state.
-    """
-
-    _ = mo.md(
+def _(con, fq, mo):
+    _df = mo.sql(
         f"""
-        ```sql
-        -- Run manually after the demo to clean up:
         DELETE FROM {fq} WHERE id IN (900000001, 900000002, 999999999);
-        ```
-        """
+        """,
+        engine=con
     )
+    return
+
+
+@app.cell
+def _():
     return
 
 
