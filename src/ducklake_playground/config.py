@@ -74,18 +74,6 @@ class SchemaConfig:
 
 
 @dataclass(frozen=True)
-class FilterConfig:
-    """Predicate used by the engine's filtered-scan helper.
-
-    The date range applies to the partition column ``event_date``, exercising partition
-    pruning. The varchar values are matched with ``IN (...)``.
-    """
-
-    date_range: tuple[str, str]
-    varchar_values: list[str]
-
-
-@dataclass(frozen=True)
 class PostgresConfig:
     """Connection details for the DuckLake metadata catalog (PostgreSQL)."""
 
@@ -98,7 +86,7 @@ class PostgresConfig:
 
 @dataclass(frozen=True)
 class S3Config:
-    """S3-compatible storage config (e.g. MinIO). Used only when ``storage_mode == 's3'``."""
+    """S3-compatible storage config (e.g. MinIO). Used when the notebook selects ``storage_mode == 's3'``."""
 
     endpoint: str
     access_key: str
@@ -109,7 +97,7 @@ class S3Config:
 
 @dataclass(frozen=True)
 class LocalConfig:
-    """Local filesystem storage config. Used when ``storage_mode == 'local'``."""
+    """Local filesystem storage config. Used when the notebook selects ``storage_mode == 'local'``."""
 
     base_path: str
     ducklake_prefix: str
@@ -123,10 +111,7 @@ class PlaygroundConfig:
     batch_size: int
     target_file_size_mb: int
     parquet_row_group_size: int
-    storage_modes: list[str]
-    default_storage_mode: str
     schema: SchemaConfig
-    filter: FilterConfig
     postgres: PostgresConfig
     s3: S3Config
     local: LocalConfig
@@ -162,11 +147,6 @@ def load_config(config_path: str | Path) -> PlaygroundConfig:
         columns=columns,
     )
 
-    filter_cfg = FilterConfig(
-        date_range=tuple(raw["filter"]["date_range"]),
-        varchar_values=raw["filter"]["varchar_values"],
-    )
-
     pg = raw["postgres"]
     postgres = PostgresConfig(
         host=pg["host"],
@@ -197,17 +177,12 @@ def load_config(config_path: str | Path) -> PlaygroundConfig:
     )
 
     bench = raw["playground"]
-    storage_modes = raw["storage_modes"]
-    default_storage_mode = raw.get("default_storage_mode") or storage_modes[0]
     return PlaygroundConfig(
         name=bench["name"],
         batch_size=bench["batch_size"],
         target_file_size_mb=bench.get("target_file_size_mb", 16),
         parquet_row_group_size=bench.get("parquet_row_group_size", 122_880),
-        storage_modes=storage_modes,
-        default_storage_mode=default_storage_mode,
         schema=schema,
-        filter=filter_cfg,
         postgres=postgres,
         s3=s3,
         local=local,

@@ -22,7 +22,7 @@ Three components, one data flow.
 │  - GeneratorSpec (frozen)    │   │  - setup(config, mode)         │
 │  - iter_batches() →          │   │  - write_overwrite/append      │
 │    pa.RecordBatch            │   │  - merge_upsert                │
-│  - arrow_reader() →          │   │  - read_full_scan/filtered     │
+│  - arrow_reader() →          │   │  - read_full_scan/aggregation  │
 │    pa.RecordBatchReader      │──→│  - get_disk_usage              │
 │  - iter_merge_batches()      │   │  - connection (DuckDB)         │
 └──────────────────────────────┘   └──────────────────────────────┘

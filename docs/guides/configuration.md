@@ -27,20 +27,23 @@ playground:
 | `target_file_size_mb` | int | 16 | Hint passed to engines that accept it (Delta uses it; DuckLake uses `set_option` instead) |
 | `parquet_row_group_size` | int | 122_880 | Row group size in **rows** for Parquet writers that take a row count |
 
-## Section: `storage_modes`
+## Choosing the storage backend
 
-Which storage backends are available. Set the active default with `default_storage_mode`.
+The storage backend (`local` or `s3`) is **not** in `config.yaml`. It's selected
+directly in the notebook by setting a top-level constant before calling
+`engine.setup(config, storage_mode)`:
 
-```yaml
-storage_modes:
-  - local
-  # - s3                 # uncomment to enable S3/MinIO
-
-default_storage_mode: local
+```python
+# notebooks/streaming_demo.py (marimo) or streaming_demo.ipynb (Jupyter)
+STORAGE_MODE = "local"  # or "s3"
 ```
 
-The notebook's storage selector is populated from this list. To enable S3, uncomment the
-line and run `just up-s3` to start MinIO.
+The engine derives a separate catalog name and Postgres database per mode
+(`playground_ducklake_local` vs `playground_ducklake_s3`), so the two never
+conflict — see [Architecture › Catalog isolation by storage mode](architecture.md).
+
+To use S3 you need a running MinIO (or real S3 endpoint): `just up-s3`, then edit
+the `s3:` section below.
 
 ## Section: `schema`
 
@@ -86,21 +89,6 @@ schema:
 | `struct` | `fields` | List of `"name:type"` strings; types: `int32`, `varchar`, `float64` |
 | `map` | `key_type` (always `varchar`), `value_type` (always `int32`), `avg_length` | Unique keys per row (DuckDB constraint) |
 
-## Section: `filter`
-
-Default predicate used by the engine's `read_filtered_scan` helper and by the demo
-notebook's main query.
-
-```yaml
-filter:
-  date_range: ["2024-01-10", "2024-01-20"]
-  varchar_values: ["value_001", "value_002", "value_003"]
-```
-
-`date_range` applies to `event_date` (partition pruning). `varchar_values` applies via
-`varchar_col IN (...)`. The default range covers ~1/3 of the partition span, exercising
-pruning without making it trivial.
-
 ## Section: `postgres`
 
 DuckLake metadata catalog connection. Must point at a running Postgres.
@@ -119,7 +107,7 @@ and `ducklake_playground_s3`) so the metadata never conflicts when switching mod
 
 ## Section: `s3`
 
-S3-compatible storage config. Used only when `storage_mode == "s3"`.
+S3-compatible storage config. Used only when the notebook sets `STORAGE_MODE = "s3"`.
 
 ```yaml
 s3:
@@ -139,7 +127,7 @@ credentials.
 
 ## Section: `local`
 
-Local filesystem storage config. Used when `storage_mode == "local"`.
+Local filesystem storage config. Used when the notebook sets `STORAGE_MODE = "local"`.
 
 ```yaml
 local:

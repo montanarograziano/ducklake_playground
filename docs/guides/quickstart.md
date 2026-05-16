@@ -36,7 +36,7 @@ default flow is:
 | Cell | What it does |
 |------|--------------|
 | Imports | Loads `config.yaml`, prepares `DuckLakeEngine`, `StreamingGenerator`, etc. |
-| Parameters | UI inputs: `row_count`, `table_name`, `storage_mode`, `chunk_size` |
+| Parameters | UI inputs: `row_count`, `table_name`, `chunk_size`. Storage backend is a `STORAGE_MODE` constant in the first cell ("local" or "s3") |
 | Attach | `engine.setup()` — installs DuckDB extensions, creates catalog DB, ATTACHes DuckLake |
 | Write-time options | `CALL catalog.set_option(...)` — zstd compression, 16MB row groups |
 | Stream-generate + write | `StreamingGenerator → arrow_reader → engine.write_overwrite()` |

@@ -33,9 +33,13 @@ def _():
     )
 
     config = load_config(repo_root / "config.yaml")
+    # Storage backend for this run. "local" uses the filesystem, "s3" uses the bucket
+    # configured under `s3:` in config.yaml (start MinIO via `just up-s3`).
+    STORAGE_MODE = "local"
     return (
         DuckLakeEngine,
         GeneratorSpec,
+        STORAGE_MODE,
         StreamingGenerator,
         config,
         measure_time_and_memory,
@@ -50,27 +54,22 @@ def _(config, mo):
         value=1_000_000, start=0, step=10_000, label="Row count"
     )
     table_name = mo.ui.text(value="demo_table", label="Table name")
-    storage_mode = mo.ui.dropdown(
-        options=config.storage_modes,
-        value=config.default_storage_mode,
-        label="Storage mode",
-    )
     chunk_size = mo.ui.number(
         value=config.batch_size, start=10_000, step=10_000, label="Chunk size"
     )
-    mo.vstack([row_count, table_name, storage_mode, chunk_size])
-    return chunk_size, row_count, storage_mode, table_name
+    mo.vstack([row_count, table_name, chunk_size])
+    return chunk_size, row_count, table_name
 
 
 @app.cell
-def _(DuckLakeEngine, config, mo, storage_mode):
+def _(DuckLakeEngine, STORAGE_MODE, config, mo):
     """Attach to the DuckLake catalog. Idempotent across reruns."""
     engine = DuckLakeEngine()
-    engine.setup(config, storage_mode.value)
+    engine.setup(config, STORAGE_MODE)
     con = engine.connection
     catalog = engine.catalog_name
     mo.md(
-        f"Attached **{catalog}** &nbsp;|&nbsp; storage=`{storage_mode.value}` "
+        f"Attached **{catalog}** &nbsp;|&nbsp; storage=`{STORAGE_MODE}` "
         f"&nbsp;|&nbsp; data_path=`{engine.data_path}`"
     )
     return catalog, con, engine

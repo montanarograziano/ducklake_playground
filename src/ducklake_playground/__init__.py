@@ -2,7 +2,6 @@
 
 from .config import (
     ColumnDef,
-    FilterConfig,
     LocalConfig,
     PlaygroundConfig,
     PostgresConfig,
@@ -29,7 +28,6 @@ __all__ = [
     "PARTITION_COL",
     "ColumnDef",
     "DuckLakeEngine",
-    "FilterConfig",
     "GeneratorSpec",
     "LocalConfig",
     "PlaygroundConfig",

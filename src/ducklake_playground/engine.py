@@ -21,7 +21,7 @@ from loguru import logger
 from .data_generator import PARTITION_COL
 
 if TYPE_CHECKING:
-    from .config import FilterConfig, PlaygroundConfig
+    from .config import PlaygroundConfig
 
 _MIN_DUCKDB_VERSION = "1.5.2"
 """Minimum DuckDB version required by the DuckLake extension."""
@@ -48,7 +48,6 @@ class DuckLakeEngine:
         self._storage_mode: str = ""
         self._data_path: str = ""
         self._catalog_name: str = ""
-        self._filter: FilterConfig | None = None
         self._pg_database: str = ""
         self._pg_baseline_bytes: int = 0
         self._pg_attach_name: str = ""
@@ -65,7 +64,8 @@ class DuckLakeEngine:
 
         Args:
             config: Playground configuration (typically from :func:`load_config`).
-            storage_mode: ``"local"`` or ``"s3"``. Must be present in ``config.storage_modes``.
+            storage_mode: ``"local"`` or ``"s3"``. Selects which storage backend in
+                ``config`` to use and namespaces the catalog accordingly.
 
         Raises:
             RuntimeError: If the installed DuckDB version is older than
@@ -73,7 +73,6 @@ class DuckLakeEngine:
         """
         self._config = config
         self._storage_mode = storage_mode
-        self._filter = config.filter
         self._catalog_name = f"playground_ducklake_{storage_mode}"
 
         version = duckdb.__version__
@@ -256,28 +255,6 @@ class DuckLakeEngine:
         assert self._con is not None
         fq = self._qualified(table_name)
         reader = self._con.execute(f"SELECT * FROM {fq}").fetch_record_batch()
-        total = 0
-        for batch in reader:
-            total += batch.num_rows
-        return total
-
-    def read_filtered_scan(self, table_name: str) -> int:
-        """Streamed filtered scan with partition pruning + value filter.
-
-        Uses ``config.filter.date_range`` (against ``event_date``, exercises partition
-        pruning) and ``config.filter.varchar_values`` (against ``varchar_col``).
-        """
-        assert self._con is not None
-        assert self._filter is not None
-        fq = self._qualified(table_name)
-        date_start, date_end = self._filter.date_range
-        varchar_vals = ", ".join(f"'{v}'" for v in self._filter.varchar_values)
-        sql = f"""
-            SELECT * FROM {fq}
-            WHERE {PARTITION_COL} BETWEEN '{date_start}' AND '{date_end}'
-              AND varchar_col IN ({varchar_vals})
-        """  # noqa: S608
-        reader = self._con.execute(sql).fetch_record_batch()
         total = 0
         for batch in reader:
             total += batch.num_rows

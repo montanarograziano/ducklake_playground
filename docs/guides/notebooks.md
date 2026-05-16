@@ -27,10 +27,11 @@ cell re-executes; edit the SQL in the query cell and the result re-renders.
 
 ### Cells
 
-1. **Imports + load_config** — Python. Sets up `sys.path`, loads `config.yaml`.
-2. **Parameters** — Python (UI). `row_count`, `table_name`, `storage_mode`, `chunk_size`
-   as `mo.ui` widgets.
-3. **Attach to DuckLake** — Python. `engine.setup(config, storage_mode.value)` returns
+1. **Imports + load_config** — Python. Sets up `sys.path`, loads `config.yaml`, sets
+   the `STORAGE_MODE` constant (`"local"` or `"s3"`).
+2. **Parameters** — Python (UI). `row_count`, `table_name`, `chunk_size` as `mo.ui`
+   widgets.
+3. **Attach to DuckLake** — Python. `engine.setup(config, STORAGE_MODE)` returns
    `con`, `catalog`, `engine`.
 4. **Fully qualified table name** — Python.
 5. **Write-time options** — `mo.sql(...)` — `CALL catalog.set_option(...)` for parquet
@@ -64,7 +65,7 @@ nice presentation layer.
 
 Python f-strings are used to interpolate `fq` (the fully qualified table name).
 This is mildly less polished in the UI than a static SQL cell, but it's necessary
-because the catalog name depends on `storage_mode` chosen at runtime.
+because the catalog name depends on `STORAGE_MODE` chosen at runtime.
 
 ## Jupyter: `streaming_demo.ipynb`
 

@@ -1,24 +1,20 @@
 # DuckLake Playground — Configuration
 # All knobs are tunable. Restart the notebook after editing for changes to take effect.
+# The storage backend (local or s3) is selected directly in the notebooks, not here.
 
 playground:
   name: "DuckLake Playground"
-  batch_size: 250_000
+  batch_size:
+    250_000
     # Rows per streaming chunk; bounds generator memory.
     # ~250K matches 16MB target_file_size at this schema's
     # typical compression. Lower for tighter memory bounds,
     # higher for less Python overhead per chunk.
-  target_file_size_mb: 16
+  target_file_size_mb:
+    16
     # Target Parquet file size (Delta engine; informational
     # for DuckLake which uses set_option).
   parquet_row_group_size: 122_880 # Rows per Parquet row group within a file.
-
-# Storage modes available. Set the data path / S3 connection below.
-storage_modes:
-  - local
-  - s3 # Opt-in: requires MinIO (or real S3) running.
-
-default_storage_mode: local
 
 # Data generation schema. The generator always injects:
 #   - id_col      (sequential int64, NOT NULL)
@@ -51,7 +47,7 @@ schema:
     - {
         name: "struct_col",
         type: "struct",
-        fields: [ "a:int32", "b:varchar", "c:float64" ],
+        fields: ["a:int32", "b:varchar", "c:float64"],
       }
     - {
         name: "map_col",
@@ -61,12 +57,6 @@ schema:
         avg_length: 3,
       }
 
-# Filter predicate — used by the engine's filtered_scan helper and as the default
-# in the demo notebook. Date range applies to event_date (exercises partition pruning).
-filter:
-  date_range: [ "2024-01-10", "2024-01-20" ]
-  varchar_values: [ "value_001", "value_002", "value_003" ]
-
 # DuckLake metadata catalog (PostgreSQL).
 postgres:
   host: "localhost"
@@ -75,7 +65,7 @@ postgres:
   user: "user"
   password: "password"
 
-# S3-compatible storage. Used only when storage_mode == "s3".
+# S3-compatible storage. Used only when the notebook selects storage_mode == "s3".
 s3:
   endpoint: "http://localhost:9000"
   access_key: "minioadmin"

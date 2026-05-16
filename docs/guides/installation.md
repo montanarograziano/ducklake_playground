@@ -79,7 +79,7 @@ You should see a single-row result.
 The engine's `setup()` method auto-creates the catalog database on first run, so no
 manual `CREATE DATABASE` is needed.
 
-## Optional: MinIO (for `storage_mode=s3`)
+## Optional: MinIO (for S3-backed runs)
 
 If you want to demo DuckLake against S3-compatible storage instead of the local
 filesystem, start MinIO too:
@@ -91,13 +91,14 @@ just up-s3
 
 MinIO console: <http://localhost:9001> (login `minioadmin` / `miniopassword`).
 
-Then in `config.yaml`, change:
+Then in the notebook, set:
 
-```yaml
-default_storage_mode: s3
+```python
+STORAGE_MODE = "s3"
 ```
 
-…or pass `storage_mode="s3"` programmatically.
+…or call `engine.setup(config, "s3")` directly. The credentials and bucket come
+from the `s3:` section of `config.yaml`.
 
 ## Verify the install
 

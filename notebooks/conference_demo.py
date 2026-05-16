@@ -30,21 +30,18 @@ def _():
     from ducklake_playground import DuckLakeEngine, load_config
 
     config = load_config(repo_root / "config.yaml")
-    storage_mode = mo.ui.dropdown(
-        options=config.storage_modes,
-        value=config.default_storage_mode,
-        label="Storage mode",
-    )
-    storage_mode
-    return DuckLakeEngine, config, mo, storage_mode
+    # Storage backend used to attach the catalog. Must match what `streaming_demo`
+    # used when it created the table.
+    STORAGE_MODE = "local"
+    return DuckLakeEngine, STORAGE_MODE, config, mo
 
 
 @app.cell
-def _(DuckLakeEngine, config, mo, storage_mode):
+def _(DuckLakeEngine, STORAGE_MODE, config, mo):
     """Attach to the existing DuckLake catalog. Table must already exist."""
 
     engine = DuckLakeEngine()
-    engine.setup(config, storage_mode.value)
+    engine.setup(config, STORAGE_MODE)
     con = engine.connection
     catalog = engine.catalog_name
     TABLE = "demo_table"
@@ -52,7 +49,7 @@ def _(DuckLakeEngine, config, mo, storage_mode):
 
     mo.md(
         f"**Connected** to `{catalog}` "
-        f"| storage = `{config.default_storage_mode}` "
+        f"| storage = `{STORAGE_MODE}` "
         f"| data path = `{engine.data_path}`"
     )
     print(fq)
