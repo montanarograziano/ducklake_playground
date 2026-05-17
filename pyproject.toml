@@ -20,6 +20,7 @@ dependencies = [
     "marimo>=0.23.0",
     "botocore>=1.39.0",
     "obstore>=0.9.4",
+    "deltalake>=1.5.1",
 ]
 
 [project.urls]
