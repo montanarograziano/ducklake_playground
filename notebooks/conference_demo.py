@@ -44,16 +44,73 @@ def _(DuckLakeEngine, STORAGE_MODE, config, mo):
     engine.setup(config, STORAGE_MODE)
     con = engine.connection
     catalog = engine.catalog_name
+    pg_admin = engine._pg_attach_name  # noqa: SLF001 - exposed for demo introspection
     TABLE = "demo_table"
     fq = f"{catalog}.main.{TABLE}"
 
     mo.md(
         f"**Connected** to `{catalog}` "
         f"| storage = `{STORAGE_MODE}` "
-        f"| data path = `{engine.data_path}`"
+        f"| data path = `{engine.data_path}` "
+        f"| catalog DB attached as `{pg_admin}`"
     )
-    print(fq)
-    return TABLE, catalog, con, fq
+    return TABLE, catalog, con, fq, pg_admin
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Catalog peek: prove the metadata is just rows in PostgreSQL.
+# Drives home the spine of the talk ("it's just a database").
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    ### The catalog is just a PostgreSQL database
+
+    DuckLake's "manifests" are rows in normal tables. Anything we can do in DuckLake we
+    can also inspect directly in Postgres. Below: list the DuckLake-managed tables, then
+    SELECT from `ducklake_snapshot` to see every snapshot ever taken.
+    """)
+    return
+
+
+@app.cell
+def _(con, mo, pg_admin):
+    """List the DuckLake metadata tables that live in the Postgres catalog DB."""
+
+    _ = mo.sql(
+        f"""
+        SELECT table_name
+        FROM postgres_query(
+            '{pg_admin}',
+            $$SELECT table_name FROM information_schema.tables
+              WHERE table_schema = 'main' AND table_name LIKE 'ducklake_%'
+              ORDER BY table_name$$
+        )
+        """,
+        engine=con,
+    )
+    return
+
+
+@app.cell
+def _(con, mo, pg_admin):
+    """Raw snapshot history from the catalog table, no DuckLake function calls."""
+
+    _ = mo.sql(
+        f"""
+        SELECT *
+        FROM postgres_query(
+            '{pg_admin}',
+            $$SELECT snapshot_id, snapshot_time, schema_version
+              FROM ducklake_snapshot
+              ORDER BY snapshot_id DESC LIMIT 10$$
+        )
+        """,
+        engine=con,
+    )
+    return
 
 
 @app.cell
@@ -122,7 +179,7 @@ def _(catalog, con, fq, mo):
 
     pre_count = con.execute(f"SELECT COUNT(*) FROM {fq}").fetchone()[0]
     pre_snapshot = con.execute(
-        f"SELECT MAX(snapshot_id) FROM {catalog}.snapshots()"
+        f"SELECT MAX(snapshot_id) FROM ducklake_snapshots('{catalog}')"
     ).fetchone()[0]
     mo.md(f"**Before transaction:** {pre_count:,} rows | snapshot v{pre_snapshot}")
     return pre_count, pre_snapshot
@@ -133,43 +190,39 @@ def _(catalog, con, fq, mo, pre_count, pre_snapshot):
     """Atomic multi-statement transaction: INSERT + UPDATE in one snapshot.
 
     If anything fails, nothing is written. Both statements land in a single
-    DuckLake snapshot (one new version in the catalog).
+    DuckLake snapshot (one new version in the catalog). We deliberately do *not*
+    catch exceptions: a failure on stage should be visible, not silently rolled back.
     """
 
     con.execute("BEGIN TRANSACTION")
-    try:
-        # Insert two new rows
-        con.execute(
-            f"""
-            INSERT INTO {fq} (id, event_date, int64_col, float64_col, varchar_col)
-            VALUES
-                (900000001, DATE '2024-01-15', 1499, 99.95, 'value_042'),
-                (900000002, DATE '2024-01-15', 49,   19.99, 'value_007')
-            """
-        )
-        # Update one of them (10% discount)
-        con.execute(
-            f"""
-            UPDATE {fq}
-            SET float64_col = float64_col * 0.9
-            WHERE id = 900000001
-            """
-        )
-        con.execute("COMMIT")
-        tx_status = "COMMITTED"
-    except Exception as exc:
-        con.execute("ROLLBACK")
-        tx_status = f"ROLLED BACK: {exc}"
+    # Insert two new rows
+    con.execute(
+        f"""
+        INSERT INTO {fq} (id, event_date, int64_col, float64_col, varchar_col)
+        VALUES
+            (900000001, DATE '2024-01-15', 1499, 99.95, 'value_042'),
+            (900000002, DATE '2024-01-15', 49,   19.99, 'value_007')
+        """
+    )
+    # Update one of them (10% discount)
+    con.execute(
+        f"""
+        UPDATE {fq}
+        SET float64_col = float64_col * 0.9
+        WHERE id = 900000001
+        """
+    )
+    con.execute("COMMIT")
 
     post_count = con.execute(f"SELECT COUNT(*) FROM {fq}").fetchone()[0]
     post_snapshot = con.execute(
-        f"SELECT MAX(snapshot_id) FROM {catalog}.snapshots()"
+        f"SELECT MAX(snapshot_id) FROM ducklake_snapshots('{catalog}')"
     ).fetchone()[0]
     mo.md(
-        f"**Transaction {tx_status}**\n\n"
+        "**Transaction COMMITTED**\n\n"
         f"- Before: {pre_count:,} rows (v{pre_snapshot})\n"
         f"- After: {post_count:,} rows (v{post_snapshot}, +{post_count - pre_count})\n"
-        f"- Both INSERT and UPDATE landed atomically in one DuckLake snapshot"
+        "- Both INSERT and UPDATE landed atomically in one DuckLake snapshot"
     )
     return (post_snapshot,)
 
@@ -197,7 +250,7 @@ def _(catalog, con, mo):
     _ = mo.sql(
         f"""
         SELECT *
-        FROM {catalog}.snapshots()
+        FROM ducklake_snapshots('{catalog}')
         ORDER BY snapshot_id DESC
         LIMIT 10
         """,
@@ -269,7 +322,7 @@ def _(TABLE, catalog, con, mo, post_snapshot, pre_snapshot):
     _df = mo.sql(
         f"""
         SELECT *
-        FROM {catalog}.table_changes('{TABLE}', {pre_snapshot}, {post_snapshot})
+        FROM ducklake_table_changes('{catalog}', 'main', '{TABLE}', {pre_snapshot}, {post_snapshot})
         ORDER BY change_type, id
         LIMIT 20
         """,
@@ -279,32 +332,53 @@ def _(TABLE, catalog, con, mo, post_snapshot, pre_snapshot):
 
 
 @app.cell
-def _(con, fq, mo):
-    """Add a new column — no Parquet rewrite needed.
+def _(mo):
+    mo.md(r"""
+    ### Transactional DDL: add a column **and** write to it in one transaction
 
-    DuckLake stores the schema change in the catalog metadata only. Existing
-    Parquet files are untouched; the new column reads as NULL for old rows.
-    """
-
-    try:
-        con.execute(
-            f"ALTER TABLE {fq} ADD COLUMN priority VARCHAR DEFAULT 'normal'"
-        )
-        mo.md(
-            "**Column `priority` added.** Existing Parquet files untouched (metadata-only change)."
-        )
-    except Exception as exc:
-        mo.md(f"Column may already exist: {exc}")
+    Iceberg and Delta can evolve a schema, but they cannot put `ALTER TABLE` and `INSERT`
+    in the same atomic unit. DuckLake can, because schema changes are just more rows in
+    the catalog DB. Below: in a single transaction we add a `priority` column, backfill
+    it for the two rows we created earlier, and commit. If anything in the block fails,
+    the column and the writes vanish together.
+    """)
     return
 
 
 @app.cell
 def _(con, fq, mo):
-    """Verify: new column appears in schema, old rows have the default."""
+    """Single-transaction schema evolution + data write."""
+
+    # Defensive cleanup if a previous run already added the column.
+    try:
+        con.execute(f"ALTER TABLE {fq} DROP COLUMN priority")
+    except Exception:
+        pass
+
+    con.execute("BEGIN TRANSACTION")
+    con.execute(f"ALTER TABLE {fq} ADD COLUMN priority VARCHAR DEFAULT 'normal'")
+    con.execute(
+        f"""
+        UPDATE {fq}
+        SET priority = 'high'
+        WHERE id IN (900000001, 900000002)
+        """
+    )
+    con.execute("COMMIT")
+    mo.md(
+        "**Transactional DDL committed.** New column + backfill landed in one snapshot. "
+        "Existing Parquet files untouched (metadata-only schema change)."
+    )
+    return
+
+
+@app.cell
+def _(con, fq, mo):
+    """Verify: column exists, new rows have 'high', everyone else has 'normal'."""
 
     _ = mo.sql(
         f"""
-        SELECT id, event_date, varchar_col, priority
+        SELECT id, varchar_col, priority
         FROM {fq}
         WHERE id IN (900000001, 900000002, 1, 2, 3)
         ORDER BY id
@@ -317,25 +391,10 @@ def _(con, fq, mo):
 
 @app.cell
 def _(con, fq, mo):
-    """Rename a column — again, metadata-only. No file rewrite."""
+    """Drop the column to leave the table clean for the next demo run."""
 
-    try:
-        con.execute(f"ALTER TABLE {fq} RENAME COLUMN priority TO urgency")
-        mo.md("**Renamed `priority` to `urgency`.** Zero Parquet I/O.")
-    except Exception as exc:
-        mo.md(f"Rename note: {exc}")
-    return
-
-
-@app.cell
-def _(con, fq, mo):
-    """Drop the column to leave the table clean for the next demo."""
-
-    try:
-        con.execute(f"ALTER TABLE {fq} DROP COLUMN urgency")
-        mo.md("**Dropped `urgency`.** Table schema restored to original.")
-    except Exception as exc:
-        mo.md(f"Drop note: {exc}")
+    con.execute(f"ALTER TABLE {fq} DROP COLUMN priority")
+    mo.md("**Dropped `priority`.** Table schema restored.")
     return
 
 
@@ -384,6 +443,85 @@ def _(con, fq, mo):
         ORDER BY id
         """,
         engine=con,
+    )
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    ### Data inlining: the small-files killer
+
+    In v1.0, inlining is **on by default** with a 10-row threshold. Inserts smaller
+    than the threshold land in the catalog DB, not in a new Parquet file. We can prove
+    it by counting files before and after a small INSERT, then forcing a `CHECKPOINT`
+    to flush the inlined rows into a real Parquet file.
+    """)
+    return
+
+
+@app.cell
+def _(TABLE, catalog, con, mo):
+    """File count before the small insert."""
+
+    pre_inline_files = con.execute(
+        f"SELECT COUNT(*) FROM ducklake_list_files('{catalog}', '{TABLE}')"
+    ).fetchone()[0]
+    mo.md(f"**Before inline insert:** {pre_inline_files} Parquet file(s) in the lake")
+    return (pre_inline_files,)
+
+
+@app.cell
+def _(catalog, con, fq, mo, pre_inline_files):
+    """Insert 3 rows: below the 10-row threshold, so they should not produce a file."""
+
+    con.execute(
+        f"""
+        INSERT INTO {fq} (id, event_date, int64_col, float64_col, varchar_col)
+        VALUES
+            (900000101, DATE '2024-01-15', 1, 1.1, 'inline_01'),
+            (900000102, DATE '2024-01-15', 2, 2.2, 'inline_02'),
+            (900000103, DATE '2024-01-15', 3, 3.3, 'inline_03')
+        """
+    )
+    post_inline_files = con.execute(
+        f"SELECT COUNT(*) FROM ducklake_list_files('{catalog}', '{TABLE}')"
+    ).fetchone()[0]
+    delta = post_inline_files - pre_inline_files
+    mo.md(
+        f"**After 3-row insert:** {post_inline_files} file(s) "
+        f"(delta = {delta:+d}). Three rows fit inline; no Parquet was written."
+    )
+    return
+
+
+@app.cell
+def _(con, fq, mo):
+    """The inlined rows are visible to readers exactly like persisted rows."""
+
+    _ = mo.sql(
+        f"""
+        SELECT id, varchar_col, float64_col
+        FROM {fq}
+        WHERE id BETWEEN 900000101 AND 900000103
+        ORDER BY id
+        """,
+        engine=con,
+    )
+    return
+
+
+@app.cell
+def _(TABLE, catalog, con, mo):
+    """Force a checkpoint: inlined rows are materialised as Parquet now."""
+
+    con.execute("CHECKPOINT")
+    post_checkpoint_files = con.execute(
+        f"SELECT COUNT(*) FROM ducklake_list_files('{catalog}', '{TABLE}')"
+    ).fetchone()[0]
+    mo.md(
+        f"**After `CHECKPOINT`:** {post_checkpoint_files} file(s). "
+        "The inlined rows have been flushed into a real Parquet file."
     )
     return
 
@@ -473,8 +611,8 @@ def _(catalog, con, mo):
 
     _ = mo.sql(
         f"""
-        SELECT snapshot_id, snapshot_time, changes
-        FROM {catalog}.snapshots()
+        SELECT snapshot_id, snapshot_time
+        FROM ducklake_snapshots('{catalog}')
         ORDER BY snapshot_id DESC
         LIMIT 10
         """,
@@ -487,7 +625,9 @@ def _(catalog, con, mo):
 def _(con, fq, mo):
     _df = mo.sql(
         f"""
-        DELETE FROM {fq} WHERE id IN (900000001, 900000002, 999999999);
+        DELETE FROM {fq}
+        WHERE id IN (900000001, 900000002, 999999999,
+                     900000101, 900000102, 900000103);
         """,
         engine=con
     )

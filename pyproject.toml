@@ -21,6 +21,7 @@ dependencies = [
     "botocore>=1.39.0",
     "obstore>=0.9.4",
     "deltalake>=1.5.1",
+    "psycopg[binary]>=3.2.0",
 ]
 
 [project.urls]

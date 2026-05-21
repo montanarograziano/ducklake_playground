@@ -109,6 +109,23 @@ def _(catalog, con, mo):
 
 
 @app.cell
+def _(con, fq, mo):
+    """Before-write count: makes the snapshot atomicity visible on stage.
+
+    If the table does not exist yet this returns 0 and we skip — the streaming write
+    will create it on first run.
+    """
+
+    try:
+        before_rows = con.execute(f"SELECT COUNT(*) FROM {fq}").fetchone()[0]
+        mo.md(f"**Before streaming write:** {before_rows:,} rows in `{fq}`")
+    except Exception:
+        before_rows = 0
+        mo.md(f"`{fq}` does not exist yet — first run will create it.")
+    return (before_rows,)
+
+
+@app.cell
 def _(
     GeneratorSpec,
     StreamingGenerator,
@@ -119,6 +136,7 @@ def _(
     mo,
     row_count,
     table_name,
+    before_rows,
 ):
     """Stream-generate + write. Memory bounded by ``chunk_size``."""
     gen = StreamingGenerator(
@@ -132,10 +150,19 @@ def _(
     with measure_time_and_memory() as _t:
         engine.write_overwrite(table_name.value, gen.arrow_reader(), gen.schema)
     timing = _t[0]
+    disk_bytes, file_count = engine.get_disk_usage(table_name.value)
     mo.md(
-        f"Wrote **{int(row_count.value):,}** rows in **{timing.wall_time_seconds:.2f}s** "
-        f"&nbsp;|&nbsp; peak RSS **{timing.peak_rss_mb:.0f} MB** "
-        f"(delta **{timing.delta_rss_mb:.0f} MB**)"
+        f"### Streaming write complete\n\n"
+        f"| metric | value |\n"
+        f"|---|---|\n"
+        f"| rows before | {before_rows:,} |\n"
+        f"| rows written | {int(row_count.value):,} |\n"
+        f"| chunk size | {int(chunk_size.value):,} |\n"
+        f"| wall time | {timing.wall_time_seconds:.2f} s |\n"
+        f"| peak RSS | {timing.peak_rss_mb:.0f} MB (delta {timing.delta_rss_mb:.0f} MB) |\n"
+        f"| files on disk | {file_count} ({disk_bytes / 1e6:.1f} MB total) |\n\n"
+        f"Peak RSS is bounded by `chunk_size`, not by `row_count` — the streaming claim "
+        f"from the README."
     )
     return
 

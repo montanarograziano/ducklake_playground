@@ -340,34 +340,32 @@ class DuckLakeEngine:
         return f"{self._catalog_name}.main.{table_name}"
 
     def _ensure_postgres_db(self, host: str, port: int, user: str, password: str, database: str) -> None:
-        """Create the catalog database in PostgreSQL if it doesn't exist."""
-        import subprocess  # noqa: S404
+        """Create the catalog database in PostgreSQL if it does not exist.
 
-        result = subprocess.run(
-            [  # noqa: S607
-                "psql",
-                "-h",
-                host,
-                "-p",
-                str(port),
-                "-U",
-                user,
-                "-d",
-                "postgres",
-                "-c",
-                f"CREATE DATABASE {database};",
-            ],
-            capture_output=True,
-            text=True,
-            env={**os.environ, "PGPASSWORD": password},
-            check=False,
-        )
-        if result.returncode == 0:
+        Uses ``psycopg`` in autocommit mode against the maintenance ``postgres`` database.
+        DuckDB's ``postgres_execute`` wraps statements in a transaction, which Postgres
+        rejects for ``CREATE DATABASE``, so the extension cannot be used here.
+        """
+        import psycopg
+        from psycopg import sql
+
+        with (
+            psycopg.connect(
+                host=host,
+                port=port,
+                user=user,
+                password=password,
+                dbname="postgres",
+                autocommit=True,
+            ) as conn,
+            conn.cursor() as cur,
+        ):
+            cur.execute("SELECT 1 FROM pg_database WHERE datname = %s", (database,))
+            if cur.fetchone() is not None:
+                logger.debug(f"Database {database} already exists")
+                return
+            cur.execute(sql.SQL('CREATE DATABASE "{}"').format(sql.Identifier(database)))
             logger.info(f"Created PostgreSQL database: {database}")
-        elif "already exists" in result.stderr:
-            logger.debug(f"Database {database} already exists")
-        else:
-            logger.warning(f"Failed to create database {database}: {result.stderr.strip()}")
 
     def _query_pg_database_size(self) -> int:
         """Return ``pg_database_size`` for the catalog DB via DuckDB's postgres_query."""
