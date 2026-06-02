@@ -4,6 +4,8 @@ version = "0.1.0"
 description = "Streaming data generation + DuckLake engine + interactive notebooks for ad-hoc demos."
 keywords = ["ducklake", "duckdb", "lakehouse", "polars", "parquet"]
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.12"
 authors = [
     { name = "Graziano Montanaro", email = "montanarograziano@users.noreply.github.com" },

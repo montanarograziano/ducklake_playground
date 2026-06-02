@@ -1,8 +1,3 @@
----
-title: Readme
-marimo-version: 0.23.4
----
-
 # DuckLake Playground
 
 Streaming data generation + a thin DuckLake engine + an interactive marimo notebook for
@@ -52,8 +47,10 @@ ducklake_playground/
 │   ├── engine.py            # DuckLakeEngine
 │   └── metrics.py           # psutil-backed timing + RSS sampler
 ├── notebooks/
-│   ├── streaming_demo.py    # marimo (primary)
-│   └── streaming_demo.ipynb # Jupyter (mirror)
+│   ├── streaming_demo.py     # marimo: data gen + streaming writes (primary)
+│   ├── streaming_demo.ipynb  # Jupyter mirror
+│   ├── conference_demo.py    # marimo: live demo (assumes table exists)
+│   └── conference_demo.ipynb # Jupyter mirror
 ├── docs/                    # Zensical site
 ├── tests/                   # pytest smoke tests
 ├── config.yaml              # all knobs
@@ -68,9 +65,10 @@ just preview-docs   # http://localhost:8000
 just build-docs     # static site under site/
 ```
 
-The docs cover installation, configuration, architecture, the data generator, the engine,
+The guides cover installation, quickstart, configuration, architecture, data generation,
 the notebooks, tuning (`chunk_size`, `target_file_size`, row groups), and DuckLake
-maintenance (compaction, snapshot expiry, time-travel, rollback).
+maintenance (compaction, snapshot expiry, time-travel, rollback). The engine API lives in
+the generated reference section.
 
 ## Requirements
 
