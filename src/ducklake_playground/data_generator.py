@@ -38,6 +38,11 @@ PARTITION_COL = "event_date"
 """Name of the canonical partition column injected by the generator."""
 
 _CHARSET = np.frombuffer(b"abcdefghijklmnopqrstuvwxyz0123456789", dtype=np.uint8)
+# Epoch offset (days) for the standalone ``date`` column so its values fall in a recent
+# 5-year window (2024-01-01..2028-12-30) rather than the 1970-relative range that a raw
+# day count would produce. This column is for type coverage only; the partition column is
+# ``event_date``, computed separately.
+_DATE_COL_EPOCH_OFFSET_DAYS = (dt.date(2024, 1, 1) - dt.date(1970, 1, 1)).days
 _STRUCT_FIELD_TYPES: dict[str, pa.DataType] = {
     "int32": pa.int32(),
     "varchar": pa.string(),
@@ -151,7 +156,7 @@ def _gen_array(col: ColumnDef, n: int, rng: np.random.Generator) -> pa.Array:
         bound = 10 ** (precision - scale)
         return pa.array(rng.uniform(-bound, bound, size=n).round(scale)).cast(pa.decimal128(precision, scale))
     if t == "date":
-        days = rng.integers(0, 5 * 365, size=n, dtype=np.int32)
+        days = _DATE_COL_EPOCH_OFFSET_DAYS + rng.integers(0, 5 * 365, size=n, dtype=np.int32)
         return pa.array(days, type=pa.date32())
     if t == "datetime":
         us = rng.integers(1577836800_000_000, 1735689599_000_000, size=n, dtype=np.int64)

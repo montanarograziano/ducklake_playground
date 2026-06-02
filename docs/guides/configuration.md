@@ -80,8 +80,8 @@ schema:
 | `int8` / `int16` / `int32` / `int64` | — | Random over the full type range |
 | `float32` / `float64` | — | Random in `[-1e6, 1e6]` / `[-1e15, 1e15]` |
 | `decimal` | `precision`, `scale` | Default precision=18, scale=4 |
-| `date` | — | Random in 2024-01-01..2028-12-30 |
-| `datetime` / `timestamp` | — | Microsecond precision, 2020-2025 range, `timestamp` is UTC |
+| `date` | — | Random over a 5-year span: 2024-01-01..2028-12-30. This is the standalone `date` column for type coverage, **not** the `event_date` partition column |
+| `datetime` / `timestamp` | — | Microsecond precision, 2020-01-01..2024-12-31 range, `timestamp` is UTC |
 | `varchar` | `cardinality` | Dictionary-encoded; pool of `value_000`..`value_{N-1}` |
 | `text` | `avg_length` | `large_string`; normal-distributed lengths |
 | `boolean` | — | Uniform 0/1 |

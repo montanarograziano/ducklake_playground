@@ -5,15 +5,18 @@ marimo-version: 0.23.4
 
 # Notebooks
 
-Two notebooks ship in `notebooks/`:
+Two demos ship in `notebooks/`, each in both marimo (`.py`) and Jupyter (`.ipynb`) form:
 
-| File | Format | Primary use |
-|------|--------|-------------|
-| `streaming_demo.py` | marimo | **Live demos** — reactive cells, native SQL syntax highlighting |
-| `streaming_demo.ipynb` | Jupyter | VS Code, JupyterLab, or anything that speaks `.ipynb` |
+| File | Format | Launch | Primary use |
+|------|--------|--------|-------------|
+| `streaming_demo.py` | marimo | `just demo` | **Live demos** — reactive cells, native SQL syntax highlighting |
+| `streaming_demo.ipynb` | Jupyter | `just jupyter` | VS Code, JupyterLab, or anything that speaks `.ipynb` |
+| `conference_demo.py` | marimo | `just conference` | ACID transactions, time travel, CDC, schema evolution, MERGE, maintenance |
+| `conference_demo.ipynb` | Jupyter | `just jupyter-conference` | Jupyter mirror of the conference demo |
 
-Both share the same data flow and produce the same DuckLake catalog. Pick whichever
-matches your environment.
+The `.py` and `.ipynb` halves of each demo share the same data flow and produce the same
+DuckLake catalog. This page walks through `streaming_demo`; the `conference_demo` cells map
+onto the operations described in [Maintenance and Time Travel](maintenance.md).
 
 ## marimo: `streaming_demo.py`
 
@@ -31,21 +34,28 @@ cell re-executes; edit the SQL in the query cell and the result re-renders.
    the `STORAGE_MODE` constant (`"local"` or `"s3"`).
 2. **Parameters** — Python (UI). `row_count`, `table_name`, `chunk_size` as `mo.ui`
    widgets.
-3. **Attach to DuckLake** — Python. `engine.setup(config, STORAGE_MODE)` returns
+3. **Attach to DuckLake** — Python. `engine.setup(config, STORAGE_MODE)` then exposes
    `con`, `catalog`, `engine`.
-4. **Fully qualified table name** — Python.
-5. **Write-time options** — `mo.sql(...)` — `CALL catalog.set_option(...)` for parquet
+4. **Fully qualified table name** — Python. Builds `fq` from `catalog` + `table_name`.
+5. **Write-time options (intro)** — Markdown. Explains that the options persist in the
+   Postgres catalog and apply to all subsequent writes.
+6. **Write-time options** — `mo.sql(...)` — `CALL catalog.set_option(...)` for parquet
    version, compression (zstd), row group size.
-6. **Stream-generate + write** — Python. `StreamingGenerator(...).arrow_reader()` →
+7. **Before-write count** — Python. Reads the current row count (0 if the table doesn't
+   exist yet) so the snapshot delta is visible after the write.
+8. **Stream-generate + write** — Python. `StreamingGenerator(...).arrow_reader()` →
    `engine.write_overwrite(...)`, wrapped in `measure_time_and_memory`.
-7. **`DESCRIBE`** — `mo.sql(...)`. Schema preview.
-8. **Sanity counts** — `mo.sql(...)`. Row count, partition span, distinct partitions.
-9. **Main query** — `mo.sql(...)`. Partition-pruned aggregation. **This is where you
-   iterate during the demo** — edit and re-run.
-10. **EXPLAIN ANALYZE** — `mo.sql(...)`. Shows partition pruning in the plan.
-11. **Snapshots** — `mo.sql(...)`. DuckLake snapshot history.
-12. **Maintenance** — Markdown only. Reference SQL for compaction; uncomment to run.
-13. **Cleanup hook** — Python. `atexit.register(engine.close)`.
+9. **`DESCRIBE`** — `mo.sql(...)`. Schema preview.
+10. **Sanity counts** — `mo.sql(...)`. Row count, partition span, distinct partitions.
+11. **Main query** — `mo.sql(...)`. Partition-pruned aggregation (`WHERE event_date
+    BETWEEN ...`). **This is where you iterate during the demo** — edit and re-run.
+12. **EXPLAIN ANALYZE** — `mo.sql(...)`. Shows partition pruning in the plan.
+13. **Snapshots** — `mo.sql(...)`. DuckLake snapshot history via `{catalog}.snapshots()`.
+
+The streaming notebook stops at the snapshot history; it has no maintenance cell or
+`atexit` cleanup hook. For compaction, time travel, CDC, and schema evolution, open the
+**`conference_demo`** notebook (`just conference`) — see
+[Maintenance and Time Travel](maintenance.md).
 
 ### How `mo.sql(..., engine=con)` works
 

@@ -45,7 +45,6 @@ default flow is:
 | Main query | A partition-pruned aggregation. Edit and re-run to iterate |
 | `EXPLAIN ANALYZE` | Shows partition pruning + plan |
 | Snapshots | DuckLake snapshot history |
-| Maintenance | (informational) — compact, expire, cleanup commands |
 
 ## 4. Iterate on queries
 
@@ -53,11 +52,14 @@ The "Main query" cell is your sandbox. Edit the SQL — for example, replace the
 aggregation with:
 
 ```sql
-SELECT event_date, COUNT(*) FROM bench
+SELECT event_date, COUNT(*) FROM demo_table
 WHERE int64_col > 0
 GROUP BY event_date
 ORDER BY event_date
 ```
+
+(The query cells use the `{fq}` f-string interpolation for the fully qualified name;
+`demo_table` is the default `table_name`.)
 
 …and the cell re-runs against the live engine. Wall time and RSS are not measured by
 default in the SQL cell; for that, copy the query into a Python cell:
@@ -87,8 +89,9 @@ The DuckLake table persists across notebook restarts in:
 - Postgres: catalog metadata (database `ducklake_playground_local`).
 - Local filesystem: data files under `data/ducklake/event_date=YYYY-MM-DD/*.parquet`.
 
-Re-running the write cell with `mode="overwrite"` replaces the data; with `mode="append"`
-it accumulates. To wipe everything:
+The write cell calls `engine.write_overwrite(...)`, which drops and recreates the table on
+every run. To accumulate instead of replacing, switch the call to `engine.write_append(...)`
+(creates the table on first call, then appends — one snapshot per call). To wipe everything:
 
 ```bash
 just down-clean
