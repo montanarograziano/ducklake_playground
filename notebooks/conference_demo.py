@@ -10,7 +10,7 @@ Open with: ``uv run marimo edit notebooks/conference_demo.py``
 
 import marimo
 
-__generated_with = "0.23.5"
+__generated_with = "0.23.6"
 app = marimo.App(width="full")
 
 
@@ -53,14 +53,9 @@ def _(DuckLakeEngine, STORAGE_MODE, config, mo):
         f"| storage = `{STORAGE_MODE}` "
         f"| data path = `{engine.data_path}` "
         f"| catalog DB attached as `{pg_admin}`"
+        f"| table name `{fq}`"
     )
     return TABLE, catalog, con, fq, pg_admin
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Catalog peek: prove the metadata is just rows in PostgreSQL.
-# Drives home the spine of the talk ("it's just a database").
-# ──────────────────────────────────────────────────────────────────────────────
 
 
 @app.cell
@@ -85,7 +80,7 @@ def _(con, mo, pg_admin):
         FROM postgres_query(
             '{pg_admin}',
             $$SELECT table_name FROM information_schema.tables
-              WHERE table_schema = 'main' AND table_name LIKE 'ducklake_%'
+              WHERE table_name LIKE 'ducklake_%'
               ORDER BY table_name$$
         )
         """,
@@ -133,25 +128,6 @@ def _(con, fq, mo):
                MAX(event_date)           AS last_date,
                COUNT(DISTINCT event_date) AS partitions
         FROM {fq}
-        """,
-        engine=con
-    )
-    return
-
-
-@app.cell
-def _(con, fq, mo):
-    _df = mo.sql(
-        f"""
-        SELECT varchar_col,
-               COUNT(*)        AS cnt,
-               SUM(int64_col)  AS total,
-               AVG(float64_col) AS avg_val
-        FROM {fq}
-        WHERE event_date BETWEEN DATE '2024-01-10' AND DATE '2024-01-15'
-        GROUP BY varchar_col
-        ORDER BY cnt DESC
-        LIMIT 10
         """,
         engine=con
     )
@@ -447,6 +423,14 @@ def _(con, fq, mo):
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## Demo completed. Minor relevant stuff below.
+    """)
+    return
+
+
 @app.cell
 def _(mo):
     mo.md(r"""
@@ -472,7 +456,7 @@ def _(TABLE, catalog, con, mo):
 
 
 @app.cell
-def _(catalog, con, fq, mo, pre_inline_files):
+def _(TABLE, catalog, con, fq, mo, pre_inline_files):
     """Insert 3 rows: below the 10-row threshold, so they should not produce a file."""
 
     con.execute(
@@ -584,7 +568,7 @@ def _(catalog, con, mo):
     # Expire snapshots older than 1 day (aggressive for demo purposes).
     # `older_than` expects a TIMESTAMP, so compute it from `now() - INTERVAL`.
     con.execute(
-        f"CALL ducklake_expire_snapshots('{catalog}', older_than => now() - INTERVAL '1 day')"
+        f"CALL ducklake_expire_snapshots('{catalog}', older_than => now() - INTERVAL '30 day')"
     )
     mo.md(
         "**`ducklake_expire_snapshots` complete.** Old versions pruned from catalog."
@@ -634,8 +618,16 @@ def _(con, fq, mo):
     return
 
 
-@app.cell
-def _():
+@app.cell(hide_code=True)
+def _(con, fq, mo):
+    _df = mo.sql(
+        f"""
+        SELECT *
+        FROM {fq}
+        LIMIT 10
+        """,
+        engine=con
+    )
     return
 
 

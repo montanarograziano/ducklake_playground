@@ -364,7 +364,10 @@ class DuckLakeEngine:
             if cur.fetchone() is not None:
                 logger.debug(f"Database {database} already exists")
                 return
-            cur.execute(sql.SQL('CREATE DATABASE "{}"').format(sql.Identifier(database)))
+            # sql.Identifier already produces the safely-quoted identifier
+            # ("foo"); wrapping it again in "..." would double the quotes and
+            # trigger Postgres's "zero-length delimited identifier" error.
+            cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(database)))
             logger.info(f"Created PostgreSQL database: {database}")
 
     def _query_pg_database_size(self) -> int:

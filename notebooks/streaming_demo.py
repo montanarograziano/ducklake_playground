@@ -8,7 +8,7 @@ Open with: ``uv run marimo edit notebooks/streaming_demo.py`` (or ``just demo``)
 
 import marimo
 
-__generated_with = "0.23.5"
+__generated_with = "0.23.6"
 app = marimo.App(width="full")
 
 
@@ -129,6 +129,7 @@ def _(con, fq, mo):
 def _(
     GeneratorSpec,
     StreamingGenerator,
+    before_rows,
     chunk_size,
     config,
     engine,
@@ -136,7 +137,6 @@ def _(
     mo,
     row_count,
     table_name,
-    before_rows,
 ):
     """Stream-generate + write. Memory bounded by ``chunk_size``."""
     gen = StreamingGenerator(
@@ -237,11 +237,6 @@ def _(catalog, con, mo):
         """,
         engine=con
     )
-    return
-
-
-@app.cell
-def _():
     return
 
 
