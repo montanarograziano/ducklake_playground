@@ -12,8 +12,8 @@ playground:
     # higher for less Python overhead per chunk.
   target_file_size_mb:
     16
-    # Target Parquet file size (Delta engine; informational
-    # for DuckLake which uses set_option).
+    # Recommended Parquet target; mirror this value in the notebook's
+    # DuckLake parquet_row_group_size_bytes set_option call.
   parquet_row_group_size: 122_880 # Rows per Parquet row group within a file.
 
 # Data generation schema. The generator always injects:

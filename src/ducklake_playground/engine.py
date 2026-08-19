@@ -11,7 +11,6 @@ Lifecycle: ``setup`` → many ``write_*`` / ``read_*`` / SQL ops via ``con`` →
 from __future__ import annotations
 
 import os
-import shutil
 from typing import TYPE_CHECKING
 
 import duckdb
@@ -23,7 +22,7 @@ from .data_generator import PARTITION_COL
 if TYPE_CHECKING:
     from .config import PlaygroundConfig
 
-_MIN_DUCKDB_VERSION = "1.5.2"
+_MIN_DUCKDB_VERSION = "1.5.4"
 """Minimum DuckDB version required by the DuckLake extension."""
 
 
@@ -76,7 +75,7 @@ class DuckLakeEngine:
         self._catalog_name = f"playground_ducklake_{storage_mode}"
 
         version = duckdb.__version__
-        if version < _MIN_DUCKDB_VERSION:
+        if self._version_tuple(version) < self._version_tuple(_MIN_DUCKDB_VERSION):
             msg = f"DuckDB {_MIN_DUCKDB_VERSION}+ required, got {version}"
             raise RuntimeError(msg)
 
@@ -94,9 +93,9 @@ class DuckLakeEngine:
             self._con.execute(f"""
                 CREATE OR REPLACE SECRET s3_secret (
                     TYPE S3,
-                    KEY_ID '{s3.access_key}',
-                    SECRET '{s3.secret_key}',
-                    ENDPOINT '{endpoint_stripped}',
+                    KEY_ID {self._sql_string(s3.access_key)},
+                    SECRET {self._sql_string(s3.secret_key)},
+                    ENDPOINT {self._sql_string(endpoint_stripped)},
                     URL_STYLE 'path',
                     USE_SSL false
                 );
@@ -112,17 +111,17 @@ class DuckLakeEngine:
         self._con.execute(f"""
             CREATE OR REPLACE SECRET postgres_secret (
                 TYPE postgres,
-                HOST '{pg.host}',
+                HOST {self._sql_string(pg.host)},
                 PORT {pg.port},
-                DATABASE '{self._pg_database}',
-                USER '{pg.user}',
-                PASSWORD '{pg.password}'
+                DATABASE {self._sql_string(self._pg_database)},
+                USER {self._sql_string(pg.user)},
+                PASSWORD {self._sql_string(pg.password)}
             );
         """)
         # Attach the catalog DB for postgres_query (used by get_postgres_metadata_size).
         self._pg_attach_name = f"pg_meta_{storage_mode}"
         try:
-            self._con.execute(f"ATTACH '' AS {self._pg_attach_name} (TYPE POSTGRES, SECRET postgres_secret);")
+            self._con.execute(f"ATTACH '' AS {self._quote_identifier(self._pg_attach_name)} (TYPE POSTGRES, SECRET postgres_secret);")
         except Exception as exc:  # pragma: no cover
             logger.warning(f"Could not ATTACH Postgres catalog for size measurement: {exc}")
 
@@ -131,10 +130,10 @@ class DuckLakeEngine:
             f"port={pg.port} user={pg.user} password={pg.password}"
         )
         self._con.execute(f"""
-            ATTACH OR REPLACE '{attach_uri}' AS {self._catalog_name}
-                (DATA_PATH '{self._data_path}');
+            ATTACH OR REPLACE {self._sql_string(attach_uri)} AS {self._quote_identifier(self._catalog_name)}
+                (DATA_PATH {self._sql_string(self._data_path)});
         """)
-        self._con.execute(f"USE {self._catalog_name};")
+        self._con.execute(f"USE {self._quote_identifier(self._catalog_name)};")
 
         self._pg_baseline_bytes = self._query_pg_database_size()
 
@@ -145,34 +144,29 @@ class DuckLakeEngine:
         )
 
     def teardown(self, table_name: str) -> None:
-        """Drop the named table and clean up its data files.
+        """Drop only the named table.
 
-        Removes the entire ``data_path`` directory on local mode and deletes the S3 prefix
-        on S3 mode. The Postgres metadata is left intact (catalog still attached); call
-        :meth:`close` to detach.
+        This deliberately does not delete the shared ``DATA_PATH``. A catalog can contain
+        multiple tables, and physical cleanup must use DuckLake's snapshot expiry and
+        cleanup procedures after choosing an appropriate retention policy.
         """
         if self._con is None:
             return
         fq = self._qualified(table_name)
         try:
             self._con.execute(f"DROP TABLE IF EXISTS {fq}")
-        except Exception:
+        except Exception as exc:
             logger.warning(f"Failed to drop table {fq}")
-
-        if self._storage_mode == "local" and self._data_path and os.path.exists(self._data_path):
-            shutil.rmtree(self._data_path, ignore_errors=True)
-            os.makedirs(self._data_path, exist_ok=True)
-        elif self._storage_mode == "s3" and self._config is not None:
-            self._cleanup_s3_files()
+            raise RuntimeError(f"Could not drop table {table_name!r}") from exc
 
     def close(self) -> None:
         """Close the DuckDB connection and detach catalogs. Idempotent."""
         if self._con is not None:
             try:
                 self._con.execute("USE memory;")
-                self._con.execute(f"DETACH IF EXISTS {self._catalog_name};")
+                self._con.execute(f"DETACH IF EXISTS {self._quote_identifier(self._catalog_name)};")
                 if self._pg_attach_name:
-                    self._con.execute(f"DETACH IF EXISTS {self._pg_attach_name};")
+                    self._con.execute(f"DETACH IF EXISTS {self._quote_identifier(self._pg_attach_name)};")
             except Exception as exc:
                 logger.debug(f"close() detach warning: {exc}")
             self._con.close()
@@ -191,11 +185,17 @@ class DuckLakeEngine:
         """Append data, creating the table on first call. One DuckLake snapshot per call."""
         assert self._con is not None
         fq = self._qualified(table_name)
+        self._con.execute("BEGIN TRANSACTION")
         try:
-            self._con.execute(f"SELECT 1 FROM {fq} LIMIT 0")
-        except duckdb.CatalogException:
-            self._create_table(fq, schema)
-        self._insert_reader(fq, reader)
+            try:
+                self._con.execute(f"SELECT 1 FROM {fq} LIMIT 0")
+            except duckdb.CatalogException:
+                self._create_table(fq, schema)
+            self._insert_reader(fq, reader)
+            self._con.execute("COMMIT")
+        except Exception:
+            self._con.execute("ROLLBACK")
+            raise
 
     def write_overwrite(
         self,
@@ -206,9 +206,15 @@ class DuckLakeEngine:
         """Drop and recreate the table with new data. One DuckLake snapshot per call."""
         assert self._con is not None
         fq = self._qualified(table_name)
-        self._con.execute(f"DROP TABLE IF EXISTS {fq}")
-        self._create_table(fq, schema)
-        self._insert_reader(fq, reader)
+        self._con.execute("BEGIN TRANSACTION")
+        try:
+            self._con.execute(f"DROP TABLE IF EXISTS {fq}")
+            self._create_table(fq, schema)
+            self._insert_reader(fq, reader)
+            self._con.execute("COMMIT")
+        except Exception:
+            self._con.execute("ROLLBACK")
+            raise
 
     def merge_upsert(
         self,
@@ -223,15 +229,19 @@ class DuckLakeEngine:
         """
         assert self._con is not None
         fq = self._qualified(table_name)
-        self._con.register("_merge_src", source_reader)
+        if merge_key not in source_reader.schema.names:
+            raise ValueError(f"merge_key {merge_key!r} is not present in the source schema")
         non_key_cols = [name for name in source_reader.schema.names if name != merge_key]
-        set_clause = ", ".join(f"{c} = source.{c}" for c in non_key_cols)
-        insert_cols = ", ".join(source_reader.schema.names)
-        insert_vals = ", ".join(f"source.{c}" for c in source_reader.schema.names)
+        if not non_key_cols:
+            raise ValueError("MERGE requires at least one non-key source column to update")
+        self._con.register("_merge_src", source_reader)
+        set_clause = ", ".join(f"{self._quote_identifier(c)} = source.{self._quote_identifier(c)}" for c in non_key_cols)
+        insert_cols = ", ".join(self._quote_identifier(c) for c in source_reader.schema.names)
+        insert_vals = ", ".join(f"source.{self._quote_identifier(c)}" for c in source_reader.schema.names)
         sql = f"""
             MERGE INTO {fq} AS target
             USING _merge_src AS source
-            ON target.{merge_key} = source.{merge_key}
+            ON target.{self._quote_identifier(merge_key)} = source.{self._quote_identifier(merge_key)}
             WHEN MATCHED THEN UPDATE SET {set_clause}
             WHEN NOT MATCHED THEN INSERT ({insert_cols}) VALUES ({insert_vals})
         """
@@ -282,32 +292,32 @@ class DuckLakeEngine:
 
     def get_disk_usage(self, table_name: str) -> tuple[int, int]:
         """Return ``(total_bytes, file_count)`` for the table's data files."""
-        assert self._config is not None
-        if self._storage_mode == "s3":
-            from .metrics import get_s3_disk_usage
+        assert self._con is not None
+        result = self._con.execute(
+            "SELECT COALESCE(SUM(data_file_size_bytes), 0), COUNT(*) "
+            f"FROM ducklake_list_files({self._sql_string(self._catalog_name)}, {self._sql_string(table_name)})"
+        ).fetchone()
+        assert result is not None
+        return int(result[0]), int(result[1])
 
-            s3 = self._config.s3
-            return get_s3_disk_usage(
-                bucket=s3.bucket,
-                prefix=s3.ducklake_prefix,
-                endpoint=s3.endpoint,
-                access_key=s3.access_key,
-                secret_key=s3.secret_key,
-            )
-        from .metrics import get_local_disk_usage
+    def get_catalog_metadata_size(self) -> int:
+        """Return the entire catalog DB's growth since engine setup (bytes).
 
-        return get_local_disk_usage(self._data_path)
-
-    def get_postgres_metadata_size(self, table_name: str) -> int:
-        """Return current ``pg_database_size`` minus the empty-catalog baseline (bytes).
-
-        Approximation only: measures the entire DuckLake catalog DB, not just this table.
-        Adequate for "metadata adds X MB on top of data files" claims; not for sub-MB
-        precision.
+        This is catalog-scoped, not table-scoped: PostgreSQL accounts for shared indexes,
+        free space, and all DuckLake tables together.
         """
         current = self._query_pg_database_size()
         delta = current - self._pg_baseline_bytes
         return max(delta, 0)
+
+    def get_postgres_metadata_size(self, table_name: str) -> int:
+        """Deprecated compatibility wrapper for :meth:`get_catalog_metadata_size`.
+
+        ``table_name`` is ignored because PostgreSQL cannot report reliable per-table
+        catalog growth with this measurement method.
+        """
+        _ = table_name
+        return self.get_catalog_metadata_size()
 
     @property
     def connection(self) -> duckdb.DuckDBPyConnection:
@@ -332,12 +342,31 @@ class DuckLakeEngine:
         """Resolved data path (local absolute path or ``s3://...`` URI)."""
         return self._data_path
 
+    def qualified_table(self, table_name: str) -> str:
+        """Return a safely quoted fully qualified table name for ad-hoc SQL."""
+        return self._qualified(table_name)
+
     # ────────────────────────────────────────────────────────────────────
     # Internals
     # ────────────────────────────────────────────────────────────────────
 
     def _qualified(self, table_name: str) -> str:
-        return f"{self._catalog_name}.main.{table_name}"
+        return ".".join((self._quote_identifier(self._catalog_name), "main", self._quote_identifier(table_name)))
+
+    @staticmethod
+    def _quote_identifier(value: str) -> str:
+        """Return a SQL identifier quoted for DuckDB."""
+        return f'"{value.replace(chr(34), chr(34) * 2)}"'
+
+    @staticmethod
+    def _sql_string(value: str) -> str:
+        """Return a SQL string literal with single quotes escaped."""
+        return "'" + value.replace("'", "''") + "'"
+
+    @staticmethod
+    def _version_tuple(version: str) -> tuple[int, ...]:
+        """Compare dotted numeric versions without lexicographic errors (e.g. 1.10 > 1.5)."""
+        return tuple(int(part) for part in version.split(".") if part.isdigit())
 
     def _ensure_postgres_db(self, host: str, port: int, user: str, password: str, database: str) -> None:
         """Create the catalog database in PostgreSQL if it does not exist.
@@ -377,7 +406,8 @@ class DuckLakeEngine:
             return 0
         try:
             row = self._con.execute(
-                f"SELECT * FROM postgres_query('{self._pg_attach_name}', 'SELECT pg_database_size(current_database())')"
+                "SELECT * FROM postgres_query("
+                f"{self._sql_string(self._pg_attach_name)}, 'SELECT pg_database_size(current_database())')"
             ).fetchone()
         except Exception as exc:  # pragma: no cover - best-effort
             logger.warning(f"Could not query pg_database_size: {exc}")
@@ -396,9 +426,9 @@ class DuckLakeEngine:
         finally:
             self._con.unregister("_arrow_empty")
         try:
-            self._con.execute(f"ALTER TABLE {fq} SET PARTITIONED BY ({PARTITION_COL})")
+            self._con.execute(f"ALTER TABLE {fq} SET PARTITIONED BY ({self._quote_identifier(PARTITION_COL)})")
         except Exception as exc:
-            logger.warning(f"Could not set partitioning via ALTER (will fall back to unpartitioned): {exc}")
+            raise RuntimeError(f"Could not partition {fq} by {PARTITION_COL}") from exc
 
     def _insert_reader(self, fq: str, reader: pa.RecordBatchReader) -> None:
         """Stream a RecordBatchReader into ``fq`` via INSERT ... SELECT * FROM <registered>."""
@@ -408,22 +438,3 @@ class DuckLakeEngine:
             self._con.execute(f"INSERT INTO {fq} SELECT * FROM _arrow_src")
         finally:
             self._con.unregister("_arrow_src")
-
-    def _cleanup_s3_files(self) -> None:
-        """Remove data files from S3/MinIO using botocore."""
-        from .metrics import s3_rm_recursive
-
-        assert self._config is not None
-        s3 = self._config.s3
-        prefix = s3.ducklake_prefix
-        try:
-            n = s3_rm_recursive(
-                bucket=s3.bucket,
-                prefix=prefix,
-                endpoint=s3.endpoint,
-                access_key=s3.access_key,
-                secret_key=s3.secret_key,
-            )
-            logger.debug(f"Cleaned up {n} S3 objects at s3://{s3.bucket}/{prefix}")
-        except Exception:
-            logger.warning(f"Failed to clean up S3 path: s3://{s3.bucket}/{prefix}")

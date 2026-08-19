@@ -7,7 +7,7 @@ event_date-sorted order so the Parquet writer only ever has 1-2 partitions open 
 Public API:
 
 * ``GeneratorSpec``: immutable configuration for one streaming run.
-* ``StreamingGenerator(spec)``: single-use producer with multiple consumer adapters.
+* ``StreamingGenerator(spec)``: reusable deterministic producer with multiple consumer adapters.
 * ``StreamingGenerator.iter_batches() -> Iterator[pa.RecordBatch]``: streamed primary data.
 * ``StreamingGenerator.iter_polars() -> Iterator[pl.DataFrame]``: zero-copy Polars adapter.
 * ``StreamingGenerator.arrow_reader() -> pa.RecordBatchReader``: zero-copy reader for
@@ -15,8 +15,8 @@ Public API:
 * ``StreamingGenerator.iter_merge_batches(overlap_ratio)``: merge source data with crafted IDs.
 * ``StreamingGenerator.merge_arrow_reader(overlap_ratio)``: merge source as a record batch reader.
 
-Single-use contract: each ``StreamingGenerator`` instance produces output exactly once.
-Instantiate a fresh one per write iteration.
+Each call to a streaming adapter produces a fresh deterministic stream. A
+``pa.RecordBatchReader`` returned by an adapter remains single-pass, as Arrow requires.
 """
 
 from __future__ import annotations
@@ -270,10 +270,10 @@ class GeneratorSpec:
 
 
 class StreamingGenerator:
-    """Single-use producer with multiple consumer adapters. Schema-stable across chunks.
+    """Reusable deterministic producer with multiple consumer adapters. Schema-stable across chunks.
 
-    Each ``StreamingGenerator`` instance produces output exactly once. To run another
-    iteration, instantiate a fresh ``StreamingGenerator(spec)``.
+    Call an adapter again to make a fresh stream. Each individual Arrow reader is
+    single-pass.
 
     The primary stream is **partition-sorted**: rows are emitted in ``event_date``-ascending
     order via id-based partition assignment. This keeps the Parquet writer's open-buffer set

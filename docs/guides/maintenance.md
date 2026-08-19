@@ -33,6 +33,10 @@ CALL ducklake_cleanup_old_files(
 
 Order matters: merge → expire → cleanup. Each is idempotent.
 
+Dropping a table removes its catalog entry only. It intentionally does **not** delete the
+shared `DATA_PATH`, because another table may use it; use the retention-aware procedures
+above to remove unreferenced files.
+
 | Procedure | What it does | When to call |
 |-----------|--------------|--------------|
 | `merge_adjacent_files` | Rewrites small files into larger ones, partition-aware. Creates a new snapshot containing the consolidated file set | After many writes / after merge_upsert (which produces lots of small post-merge files) |

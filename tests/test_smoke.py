@@ -10,6 +10,7 @@ import pytest
 
 from ducklake_playground import (
     PARTITION_COL,
+    DuckLakeEngine,
     GeneratorSpec,
     PlaygroundConfig,
     StreamingGenerator,
@@ -66,6 +67,16 @@ def test_generator_is_deterministic_for_fixed_seed() -> None:
     assert t1.equals(t2)
 
 
+def test_generator_can_produce_a_fresh_deterministic_stream() -> None:
+    """Each adapter call creates a new stream; Arrow readers themselves remain single-pass."""
+    cfg = load_config(CONFIG_PATH)
+    spec = GeneratorSpec(schema_config=cfg.schema, total_rows=500, chunk_size=200, seed=7)
+    gen = StreamingGenerator(spec)
+    first = pa.Table.from_batches(list(gen.iter_batches()))
+    second = pa.Table.from_batches(list(gen.iter_batches()))
+    assert first.equals(second)
+
+
 def test_arrow_reader_round_trip() -> None:
     cfg = load_config(CONFIG_PATH)
     gen = StreamingGenerator(GeneratorSpec(schema_config=cfg.schema, total_rows=300, chunk_size=100, seed=1))
@@ -92,14 +103,32 @@ def test_merge_stream_overlap_ratio() -> None:
 def test_unknown_column_type_raises() -> None:
     from ducklake_playground.config import ColumnDef, SchemaConfig
 
-    bad_schema = SchemaConfig(
-        id_col="id",
-        seed=1,
-        merge_overlap_ratio=0.0,
-        columns=[ColumnDef(name="oops", type="not_a_real_type")],
-    )
     with pytest.raises(ValueError, match="Unsupported column type"):
-        build_schema(bad_schema)
+        SchemaConfig(
+            id_col="id",
+            seed=1,
+            merge_overlap_ratio=0.0,
+            columns=[ColumnDef(name="oops", type="not_a_real_type")],
+        )
+
+
+def test_schema_rejects_reserved_or_duplicate_column_names() -> None:
+    from ducklake_playground.config import ColumnDef, SchemaConfig
+
+    with pytest.raises(ValueError, match="must be unique"):
+        SchemaConfig(
+            id_col="id",
+            seed=1,
+            merge_overlap_ratio=0.0,
+            columns=[ColumnDef(name="event_date", type="int64")],
+        )
+
+
+def test_column_def_rejects_invalid_type_specific_options() -> None:
+    from ducklake_playground.config import ColumnDef
+
+    with pytest.raises(ValueError, match="cardinality"):
+        ColumnDef(name="category", type="varchar")
 
 
 def test_measure_time_and_memory_returns_one_result() -> None:
@@ -109,3 +138,7 @@ def test_measure_time_and_memory_returns_one_result() -> None:
     assert len(t) == 1
     assert t[0].wall_time_seconds >= 0
     assert t[0].peak_rss_mb > 0
+
+
+def test_duckdb_version_comparison_is_numeric() -> None:
+    assert DuckLakeEngine._version_tuple("1.10.0") > DuckLakeEngine._version_tuple("1.5.4")

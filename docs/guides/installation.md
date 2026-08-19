@@ -14,7 +14,7 @@ marimo-version: 0.23.4
 | Docker | latest | DuckLake catalog backend (Postgres) |
 | [just](https://github.com/casey/just) | optional | Task runner used in this README |
 
-DuckDB 1.5.2+ (with the `ducklake` extension) is installed automatically by `uv sync`.
+DuckDB 1.5.4+ (with the `ducklake` extension) is installed automatically by `uv sync`.
 The extension itself is installed by the engine on first connection.
 
 ## Clone + install
@@ -33,7 +33,7 @@ This creates a `.venv` in the repo root with all dependencies pinned.
 ## Start the DuckLake catalog (Postgres)
 
 DuckLake stores its catalog metadata in PostgreSQL. The `docker-compose.yml` in the repo
-root provisions a Postgres 17 container with sensible defaults.
+root provisions a Postgres 18 container with sensible defaults.
 
 ### Optional: override defaults via `.env`
 

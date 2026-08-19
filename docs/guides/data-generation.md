@@ -41,9 +41,9 @@ Consequences:
 
 ## The streaming contract
 
-Each `StreamingGenerator` instance is **single-use**. The first time you consume
-`iter_batches()`, `iter_polars()`, or `arrow_reader()`, the generator is exhausted.
-For another iteration, instantiate a new one.
+Each streaming adapter call produces a fresh deterministic stream. Individual
+`pa.RecordBatchReader` values remain single-pass, so make a new reader when reusing the
+generator.
 
 ```python
 gen = StreamingGenerator(GeneratorSpec(...))
@@ -54,8 +54,7 @@ engine.write_overwrite("t", reader, gen.schema)
 # engine.write_append("t2", reader, gen.schema)  # reader is exhausted!
 
 # DO:
-gen2 = StreamingGenerator(GeneratorSpec(...))
-engine.write_append("t2", gen2.arrow_reader(), gen2.schema)
+engine.write_append("t2", gen.arrow_reader(), gen.schema)
 ```
 
 ## RNG strategy

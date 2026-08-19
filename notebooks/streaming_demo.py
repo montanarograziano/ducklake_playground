@@ -76,9 +76,9 @@ def _(DuckLakeEngine, STORAGE_MODE, config, mo):
 
 
 @app.cell
-def _(catalog, table_name):
+def _(engine, table_name):
     """Fully qualified table name used by all SQL cells."""
-    fq = f"{catalog}.main.{table_name.value}"
+    fq = engine.qualified_table(table_name.value)
     print(fq)
     return (fq,)
 
@@ -96,12 +96,12 @@ def _(mo):
 
 
 @app.cell
-def _(catalog, con, mo):
+def _(catalog, config, con, mo):
     _df = mo.sql(
         f"""
         CALL {catalog}.set_option('parquet_version', 2);
         CALL {catalog}.set_option('parquet_compression', 'zstd');
-        CALL {catalog}.set_option('parquet_row_group_size_bytes', '16MB');
+        CALL {catalog}.set_option('parquet_row_group_size_bytes', '{config.target_file_size_mb}MB');
         """,
         engine=con
     )

@@ -24,8 +24,8 @@ playground:
 |-----|------|---------|---------|
 | `name` | str | "DuckLake Playground" | Display name; surfaced in the notebook header |
 | `batch_size` | int | 250_000 | Rows per generator chunk. Bounds Python-side memory. See [Tuning](tuning.md) |
-| `target_file_size_mb` | int | 16 | Hint passed to engines that accept it (Delta uses it; DuckLake uses `set_option` instead) |
-| `parquet_row_group_size` | int | 122_880 | Row group size in **rows** for Parquet writers that take a row count |
+| `target_file_size_mb` | int | 16 | Recommended value to mirror in the notebook's DuckLake `parquet_row_group_size_bytes` option |
+| `parquet_row_group_size` | int | 122_880 | Informational row-count target for experiments; DuckLake's active setting is the byte-based notebook option |
 
 ## Choosing the storage backend
 

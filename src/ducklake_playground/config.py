@@ -47,6 +47,31 @@ class ColumnDef:
     key_type: str = ""
     value_type: str = ""
 
+    def __post_init__(self) -> None:
+        """Reject unsupported or internally inconsistent generator definitions."""
+        supported = {
+            "int8", "int16", "int32", "int64", "float32", "float64", "decimal", "date", "datetime",
+            "timestamp", "varchar", "text", "boolean", "list", "map", "struct",
+        }
+        if not self.name or self.type not in supported:
+            raise ValueError(f"Unsupported column type: {self.type}")
+        if self.type == "decimal" and not (1 <= self.precision <= 38 and 0 <= self.scale <= self.precision):
+            raise ValueError("decimal precision must be 1..38 and scale must be 0..precision")
+        if self.type == "varchar" and self.cardinality <= 0:
+            raise ValueError("varchar cardinality must be positive")
+        if self.type in {"text", "list", "map"} and self.avg_length <= 0:
+            raise ValueError(f"{self.type} avg_length must be positive")
+        if self.type == "list" and self.child_type != "int32":
+            raise ValueError("list child_type must be int32")
+        if self.type == "map" and (self.key_type != "varchar" or self.value_type != "int32"):
+            raise ValueError("map key_type/value_type must be varchar/int32")
+        if self.type == "struct":
+            fields = [field.partition(":") for field in self.fields]
+            if not fields or any(not name or separator != ":" or typ not in {"int32", "varchar", "float64"} for name, separator, typ in fields):
+                raise ValueError("struct fields must be non-empty name:int32|varchar|float64 entries")
+            if len({name for name, _, _ in fields}) != len(fields):
+                raise ValueError("struct field names must be unique")
+
 
 @dataclass(frozen=True)
 class SchemaConfig:
@@ -71,6 +96,16 @@ class SchemaConfig:
     seed: int
     merge_overlap_ratio: float
     columns: list[ColumnDef]
+
+    def __post_init__(self) -> None:
+        """Validate names that must remain unambiguous in generated SQL and Arrow schemas."""
+        names = [self.id_col, "event_date", *(column.name for column in self.columns)]
+        if not self.id_col:
+            raise ValueError("id_col must not be empty")
+        if len(set(names)) != len(names):
+            raise ValueError("id_col, event_date, and user column names must be unique")
+        if not 0.0 <= self.merge_overlap_ratio <= 1.0:
+            raise ValueError("merge_overlap_ratio must be in [0, 1]")
 
 
 @dataclass(frozen=True)
@@ -115,6 +150,15 @@ class PlaygroundConfig:
     postgres: PostgresConfig
     s3: S3Config
     local: LocalConfig
+
+    def __post_init__(self) -> None:
+        """Validate operational settings before a notebook starts writing data."""
+        if self.batch_size <= 0:
+            raise ValueError("batch_size must be positive")
+        if self.target_file_size_mb <= 0:
+            raise ValueError("target_file_size_mb must be positive")
+        if self.parquet_row_group_size <= 0:
+            raise ValueError("parquet_row_group_size must be positive")
 
     @property
     def target_file_size_bytes(self) -> int:

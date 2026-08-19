@@ -12,7 +12,7 @@ authors = [
 ]
 
 dependencies = [
-    "duckdb>=1.5.2",
+    "duckdb>=1.5.4",
     "polars>=1.37.0",
     "pyarrow>=20.0.0",
     "numpy>=2.0.0",

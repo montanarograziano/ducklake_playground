@@ -438,8 +438,8 @@ def _(mo):
 
     In v1.0, inlining is **on by default** with a 10-row threshold. Inserts smaller
     than the threshold land in the catalog DB, not in a new Parquet file. We can prove
-    it by counting files before and after a small INSERT, then forcing a `CHECKPOINT`
-    to flush the inlined rows into a real Parquet file.
+    it by counting files before and after a small INSERT, then flushing only this table's
+    inlined rows into a real Parquet file.
     """)
     return
 
@@ -497,14 +497,14 @@ def _(con, fq, mo):
 
 @app.cell
 def _(TABLE, catalog, con, mo):
-    """Force a checkpoint: inlined rows are materialised as Parquet now."""
+    """Flush only this table's inlined rows; unlike CHECKPOINT this has no other maintenance effects."""
 
-    con.execute("CHECKPOINT")
+    con.execute(f"CALL ducklake_flush_inlined_data('{catalog}', table_name => '{TABLE}')")
     post_checkpoint_files = con.execute(
         f"SELECT COUNT(*) FROM ducklake_list_files('{catalog}', '{TABLE}')"
     ).fetchone()[0]
     mo.md(
-        f"**After `CHECKPOINT`:** {post_checkpoint_files} file(s). "
+        f"**After `ducklake_flush_inlined_data`:** {post_checkpoint_files} file(s). "
         "The inlined rows have been flushed into a real Parquet file."
     )
     return

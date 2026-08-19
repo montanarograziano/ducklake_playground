@@ -75,7 +75,7 @@ the generated reference section.
 * Python 3.12+
 * uv (package manager)
 * Docker (for the Postgres catalog)
-* DuckDB 1.5.2+ (installed automatically via `uv sync`)
+* DuckDB 1.5.4+ (installed automatically via `uv sync`)
 
 ## License
 
