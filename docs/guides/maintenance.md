@@ -5,10 +5,37 @@ marimo-version: 0.23.4
 
 # Maintenance and Time Travel
 
-DuckLake's snapshot model unlocks two capabilities you'll want to demo:
+DuckLake's snapshot model unlocks three capabilities you'll want to demo:
 
-1. **Compaction** — merge small adjacent files after several writes.
-2. **Time travel and rollback** — query historical snapshots; revert to a previous one.
+1. **Data inlining** — small writes skip Parquet entirely; flush them on demand.
+2. **Compaction** — merge small adjacent files after several writes.
+3. **Time travel and rollback** — query historical snapshots; revert to a previous one.
+
+## Data inlining (on by default since v1.0)
+
+Since DuckLake v1.0, inserts and deletes smaller than `data_inlining_row_limit` (default
+**10 rows**) are written directly to tables in the Postgres catalog instead of a new
+Parquet file. Reads merge inlined rows with Parquet data transparently — a `SELECT`
+never needs to know where a row physically lives.
+
+This only matters for **small** writes. The streaming demo's batches (`chunk_size` ≈
+250K rows) are always far above the threshold and go straight to Parquet, unaffected.
+It matters for the conference demo's one-off `INSERT ... VALUES (...), (...)` cells and
+for `merge_upsert` calls with a tiny overlap in absolute row count.
+
+```sql
+-- Below the 10-row threshold: inlined into the catalog, no new Parquet file.
+INSERT INTO playground_ducklake_local.main.demo_table (id, event_date, int64_col)
+VALUES (1, DATE '2024-01-15', 1), (2, DATE '2024-01-15', 2);
+
+-- Materialize just this table's inlined rows into a real Parquet file.
+CALL ducklake_flush_inlined_data('playground_ducklake_local', table_name => 'demo_table');
+```
+
+`CHECKPOINT` also flushes inlined data, but for *every* table (plus other maintenance
+side effects) — prefer the scoped `ducklake_flush_inlined_data(...)` call for a demo
+where you want to show one table's behavior in isolation. Both are captured in
+`notebooks/conference_demo.py`.
 
 ## Compaction
 
@@ -38,7 +65,7 @@ shared `DATA_PATH`, because another table may use it; use the retention-aware pr
 above to remove unreferenced files.
 
 | Procedure | What it does | When to call |
-|-----------|--------------|--------------|
+| ----------- | -------------- | -------------- |
 | `merge_adjacent_files` | Rewrites small files into larger ones, partition-aware. Creates a new snapshot containing the consolidated file set | After many writes / after merge_upsert (which produces lots of small post-merge files) |
 | `expire_snapshots` | Marks snapshots older than `older_than` as expired. Snapshots stay in the catalog until a `cleanup_old_files` call removes their data | When you want to free disk |
 | `cleanup_old_files` | Deletes data files that no live snapshot references. **Not** reversible | After expiring snapshots |
@@ -52,6 +79,7 @@ done multiple writes or an `merge_upsert`.
 ### Observing the effect
 
 Before:
+
 ```sql
 SELECT COUNT(*) AS files,
        SUM(file_size_bytes) / 1024 / 1024 AS total_mb,
@@ -60,6 +88,7 @@ FROM ducklake_table_files('playground_ducklake_local.main.demo_table');
 ```
 
 After `CALL ducklake_merge_adjacent_files(...)`:
+
 - File count drops, average file size grows.
 - A new snapshot is registered (visible in `snapshots()`).
 
@@ -129,6 +158,7 @@ or per-attach time-travel forms — they're free.
 ### Don't run cleanup if you might want to roll back
 
 After:
+
 ```sql
 CALL ducklake_expire_snapshots('catalog', older_than => INTERVAL '1 day');
 CALL ducklake_cleanup_old_files('catalog', cleanup_all => true);
@@ -151,6 +181,16 @@ Subsequent writes from any process (including the CLI) pick up the new setting. 
 you run multiple demos against the same catalog with different options, write-side
 behavior changes silently. Be explicit about resetting options in `setup()` if you
 care about reproducibility.
+
+### Attaching a newer `ducklake` extension to an older catalog
+
+As of v1.0, catalog migration on `ATTACH` is opt-in, not automatic (this is a breaking
+change from pre-1.0 versions). If `just up` reuses a Postgres volume created by an older
+`ducklake` extension and `uv sync` has since pulled a newer one, the plain `ATTACH` in
+`engine.py` will error instead of silently migrating. Fix by adding `AUTOMATIC_MIGRATION`
+to the attach options, or by wiping the catalog with `just down-clean` for a fresh demo
+start. Worth checking once before a live demo if the environment has sat untouched for a
+while.
 
 ### Snapshot history grows unbounded without expiry
 
