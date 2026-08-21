@@ -8,7 +8,7 @@ marimo-version: 0.23.4
 ## Prerequisites
 
 | Tool | Version | Purpose |
-|------|---------|---------|
+| ------ | --------- | --------- |
 | Python | 3.12+ | Runtime |
 | [uv](https://docs.astral.sh/uv/) | latest | Package manager |
 | Docker | latest | DuckLake catalog backend (Postgres) |
@@ -41,7 +41,7 @@ The compose file reads five environment variables — all of which have defaults
 into `docker-compose.yml`, so this step is optional:
 
 | Variable | Default | Used by |
-|----------|---------|---------|
+| ---------- | --------- | --------- |
 | `POSTGRES_DB` | `ducklake_playground` | Postgres |
 | `POSTGRES_USER` | `user` | Postgres |
 | `POSTGRES_PASSWORD` | `password` | Postgres |
@@ -131,21 +131,6 @@ You probably ran `python` directly. Use `uv run python ...` or activate the venv
 
 ```bash
 source .venv/bin/activate
-```
-
-### `psql` not found in PATH
-
-The engine uses `psql` to create the catalog database on first connect. On macOS:
-
-```bash
-brew install libpq
-brew link --force libpq
-```
-
-On Debian/Ubuntu:
-
-```bash
-sudo apt install postgresql-client
 ```
 
 ### Postgres port 5432 already in use

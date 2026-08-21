@@ -1,3 +1,6 @@
+# ruff: noqa: D202, N803, N806, SIM105
+# mypy: ignore-errors
+
 """DuckLake conference live demo (marimo).
 
 Assumes the table already exists — run ``streaming_demo.py`` first to populate it with
@@ -114,7 +117,7 @@ def _(con, fq, mo):
         f"""
         DESCRIBE {fq}
         """,
-        engine=con
+        engine=con,
     )
     return
 
@@ -129,7 +132,7 @@ def _(con, fq, mo):
                COUNT(DISTINCT event_date) AS partitions
         FROM {fq}
         """,
-        engine=con
+        engine=con,
     )
     return
 
@@ -144,7 +147,7 @@ def _(con, fq, mo):
         WHERE event_date = DATE '2024-01-15'
         GROUP BY varchar_col
         """,
-        engine=con
+        engine=con,
     )
     return
 
@@ -154,9 +157,7 @@ def _(catalog, con, fq, mo):
     """Record the current row count and snapshot version before the transaction."""
 
     pre_count = con.execute(f"SELECT COUNT(*) FROM {fq}").fetchone()[0]
-    pre_snapshot = con.execute(
-        f"SELECT MAX(snapshot_id) FROM ducklake_snapshots('{catalog}')"
-    ).fetchone()[0]
+    pre_snapshot = con.execute(f"SELECT MAX(snapshot_id) FROM ducklake_snapshots('{catalog}')").fetchone()[0]
     mo.md(f"**Before transaction:** {pre_count:,} rows | snapshot v{pre_snapshot}")
     return pre_count, pre_snapshot
 
@@ -191,9 +192,7 @@ def _(catalog, con, fq, mo, pre_count, pre_snapshot):
     con.execute("COMMIT")
 
     post_count = con.execute(f"SELECT COUNT(*) FROM {fq}").fetchone()[0]
-    post_snapshot = con.execute(
-        f"SELECT MAX(snapshot_id) FROM ducklake_snapshots('{catalog}')"
-    ).fetchone()[0]
+    post_snapshot = con.execute(f"SELECT MAX(snapshot_id) FROM ducklake_snapshots('{catalog}')").fetchone()[0]
     mo.md(
         "**Transaction COMMITTED**\n\n"
         f"- Before: {pre_count:,} rows (v{pre_snapshot})\n"
@@ -244,9 +243,7 @@ def _(mo, post_snapshot, pre_snapshot):
     occurs when the second-to-last catalog snapshot predates the table.
     """
 
-    mo.md(
-        f"**Before-tx snapshot:** v{pre_snapshot} | **After-tx snapshot:** v{post_snapshot}"
-    )
+    mo.md(f"**Before-tx snapshot:** v{pre_snapshot} | **After-tx snapshot:** v{post_snapshot}")
     return
 
 
@@ -287,8 +284,9 @@ def _(mo):
     mo.md(r"""
     Change data feed: what changed between the two snapshots?
 
-    Returns INSERT, UPDATE_BEFORE, UPDATE_AFTER rows with change_type column.
-    This is DuckLake's built-in CDC — no Kafka or external tooling required.
+    Returns the transaction's net changes with lowercase `change_type` values such as
+    `insert`, `update_preimage`, `update_postimage`, and `delete`. This is DuckLake's
+    built-in CDC — no Kafka or external tooling required.
     """)
     return
 
@@ -298,11 +296,11 @@ def _(TABLE, catalog, con, mo, post_snapshot, pre_snapshot):
     _df = mo.sql(
         f"""
         SELECT *
-        FROM ducklake_table_changes('{catalog}', 'main', '{TABLE}', {pre_snapshot}, {post_snapshot})
+        FROM ducklake_table_changes('{catalog}', 'main', '{TABLE}', {pre_snapshot + 1}, {post_snapshot})
         ORDER BY change_type, id
         LIMIT 20
         """,
-        engine=con
+        engine=con,
     )
     return
 
@@ -436,8 +434,8 @@ def _(mo):
     mo.md(r"""
     ### Data inlining: the small-files killer
 
-    In v1.0, inlining is **on by default** with a 10-row threshold. Inserts smaller
-    than the threshold land in the catalog DB, not in a new Parquet file. We can prove
+    In v1.0, inlining is **on by default** with a 10-row threshold. Inserts of up to
+    10 rows land in the catalog DB, not in a new Parquet file. We can prove
     it by counting files before and after a small INSERT, then flushing only this table's
     inlined rows into a real Parquet file.
     """)
@@ -448,9 +446,7 @@ def _(mo):
 def _(TABLE, catalog, con, mo):
     """File count before the small insert."""
 
-    pre_inline_files = con.execute(
-        f"SELECT COUNT(*) FROM ducklake_list_files('{catalog}', '{TABLE}')"
-    ).fetchone()[0]
+    pre_inline_files = con.execute(f"SELECT COUNT(*) FROM ducklake_list_files('{catalog}', '{TABLE}')").fetchone()[0]
     mo.md(f"**Before inline insert:** {pre_inline_files} Parquet file(s) in the lake")
     return (pre_inline_files,)
 
@@ -468,9 +464,7 @@ def _(TABLE, catalog, con, fq, mo, pre_inline_files):
             (900000103, DATE '2024-01-15', 3, 3.3, 'inline_03')
         """
     )
-    post_inline_files = con.execute(
-        f"SELECT COUNT(*) FROM ducklake_list_files('{catalog}', '{TABLE}')"
-    ).fetchone()[0]
+    post_inline_files = con.execute(f"SELECT COUNT(*) FROM ducklake_list_files('{catalog}', '{TABLE}')").fetchone()[0]
     delta = post_inline_files - pre_inline_files
     mo.md(
         f"**After 3-row insert:** {post_inline_files} file(s) "
@@ -500,9 +494,9 @@ def _(TABLE, catalog, con, mo):
     """Flush only this table's inlined rows; unlike CHECKPOINT this has no other maintenance effects."""
 
     con.execute(f"CALL ducklake_flush_inlined_data('{catalog}', table_name => '{TABLE}')")
-    post_checkpoint_files = con.execute(
-        f"SELECT COUNT(*) FROM ducklake_list_files('{catalog}', '{TABLE}')"
-    ).fetchone()[0]
+    post_checkpoint_files = con.execute(f"SELECT COUNT(*) FROM ducklake_list_files('{catalog}', '{TABLE}')").fetchone()[
+        0
+    ]
     mo.md(
         f"**After `ducklake_flush_inlined_data`:** {post_checkpoint_files} file(s). "
         "The inlined rows have been flushed into a real Parquet file."
@@ -565,27 +559,19 @@ def _(catalog, con, mo):
     longer be used for time travel.
     """
 
-    # Expire snapshots older than 1 day (aggressive for demo purposes).
+    # Expire snapshots older than 30 days.
     # `older_than` expects a TIMESTAMP, so compute it from `now() - INTERVAL`.
-    con.execute(
-        f"CALL ducklake_expire_snapshots('{catalog}', older_than => now() - INTERVAL '30 day')"
-    )
-    mo.md(
-        "**`ducklake_expire_snapshots` complete.** Old versions pruned from catalog."
-    )
+    con.execute(f"CALL ducklake_expire_snapshots('{catalog}', older_than => now() - INTERVAL '30 day')")
+    mo.md("**`ducklake_expire_snapshots` complete.** Old versions pruned from catalog.")
     return
 
 
 @app.cell
 def _(catalog, con, mo):
-    """Clean up orphaned data files left behind by expired snapshots."""
+    """Delete files scheduled for cleanup after snapshot expiry or compaction."""
 
-    con.execute(
-        f"CALL ducklake_cleanup_old_files('{catalog}', cleanup_all => true)"
-    )
-    mo.md(
-        "**`ducklake_cleanup_old_files` complete.** Unreferenced Parquet files deleted."
-    )
+    con.execute(f"CALL ducklake_cleanup_old_files('{catalog}', cleanup_all => true)")
+    mo.md("**`ducklake_cleanup_old_files` complete.** Unreferenced Parquet files deleted.")
     return
 
 
@@ -613,7 +599,7 @@ def _(con, fq, mo):
         WHERE id IN (900000001, 900000002, 999999999,
                      900000101, 900000102, 900000103);
         """,
-        engine=con
+        engine=con,
     )
     return
 
@@ -626,7 +612,7 @@ def _(con, fq, mo):
         FROM {fq}
         LIMIT 10
         """,
-        engine=con
+        engine=con,
     )
     return
 

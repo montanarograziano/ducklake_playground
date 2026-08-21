@@ -59,7 +59,7 @@ class DuckLakeEngine:
         """Initialize the DuckDB connection, install extensions, attach DuckLake.
 
         Idempotent on repeat calls (uses ``ATTACH OR REPLACE``). The catalog database is
-        created in PostgreSQL on first call via ``psql``.
+        created in PostgreSQL on first call via ``psycopg``.
 
         Args:
             config: Playground configuration (typically from :func:`load_config`).
@@ -79,18 +79,19 @@ class DuckLakeEngine:
             msg = f"DuckDB {_MIN_DUCKDB_VERSION}+ required, got {version}"
             raise RuntimeError(msg)
 
-        self._con = duckdb.connect()
-        self._con.execute("INSTALL ducklake; INSTALL postgres;")
-        self._con.execute("LOAD ducklake; LOAD postgres;")
+        con = duckdb.connect()
+        self._con = con
+        con.execute("INSTALL ducklake; INSTALL postgres;")
+        con.execute("LOAD ducklake; LOAD postgres;")
         # Allow the writer to reorder rows for better file packing.
-        self._con.execute("PRAGMA preserve_insertion_order = false;")
+        con.execute("PRAGMA preserve_insertion_order = false;")
 
         pg = config.postgres
         if storage_mode == "s3":
             s3 = config.s3
             self._data_path = f"s3://{s3.bucket}/{s3.ducklake_prefix}"
             endpoint_stripped = s3.endpoint.replace("http://", "").replace("https://", "")
-            self._con.execute(f"""
+            con.execute(f"""
                 CREATE OR REPLACE SECRET s3_secret (
                     TYPE S3,
                     KEY_ID {self._sql_string(s3.access_key)},
@@ -103,12 +104,16 @@ class DuckLakeEngine:
         else:
             base = os.path.abspath(config.local.base_path)
             self._data_path = os.path.join(base, config.local.ducklake_prefix)
-            os.makedirs(self._data_path, exist_ok=True)
+            try:
+                os.makedirs(self._data_path, exist_ok=True)
+            except OSError as exc:
+                msg = f"Could not create DuckLake data directory: {self._data_path}"
+                raise RuntimeError(msg) from exc
 
         self._pg_database = f"{pg.database}_{storage_mode}"
         self._ensure_postgres_db(pg.host, pg.port, pg.user, pg.password, self._pg_database)
 
-        self._con.execute(f"""
+        con.execute(f"""
             CREATE OR REPLACE SECRET postgres_secret (
                 TYPE postgres,
                 HOST {self._sql_string(pg.host)},
@@ -121,7 +126,9 @@ class DuckLakeEngine:
         # Attach the catalog DB for postgres_query (used by get_postgres_metadata_size).
         self._pg_attach_name = f"pg_meta_{storage_mode}"
         try:
-            self._con.execute(f"ATTACH '' AS {self._quote_identifier(self._pg_attach_name)} (TYPE POSTGRES, SECRET postgres_secret);")
+            con.execute(
+                f"ATTACH '' AS {self._quote_identifier(self._pg_attach_name)} (TYPE POSTGRES, SECRET postgres_secret);"
+            )
         except Exception as exc:  # pragma: no cover
             logger.warning(f"Could not ATTACH Postgres catalog for size measurement: {exc}")
 
@@ -129,11 +136,11 @@ class DuckLakeEngine:
             f"ducklake:postgres:dbname={self._pg_database} host={pg.host} "
             f"port={pg.port} user={pg.user} password={pg.password}"
         )
-        self._con.execute(f"""
+        con.execute(f"""
             ATTACH OR REPLACE {self._sql_string(attach_uri)} AS {self._quote_identifier(self._catalog_name)}
                 (DATA_PATH {self._sql_string(self._data_path)});
         """)
-        self._con.execute(f"USE {self._quote_identifier(self._catalog_name)};")
+        con.execute(f"USE {self._quote_identifier(self._catalog_name)};")
 
         self._pg_baseline_bytes = self._query_pg_database_size()
 
@@ -235,7 +242,9 @@ class DuckLakeEngine:
         if not non_key_cols:
             raise ValueError("MERGE requires at least one non-key source column to update")
         self._con.register("_merge_src", source_reader)
-        set_clause = ", ".join(f"{self._quote_identifier(c)} = source.{self._quote_identifier(c)}" for c in non_key_cols)
+        set_clause = ", ".join(
+            f"{self._quote_identifier(c)} = source.{self._quote_identifier(c)}" for c in non_key_cols
+        )
         insert_cols = ", ".join(self._quote_identifier(c) for c in source_reader.schema.names)
         insert_vals = ", ".join(f"source.{self._quote_identifier(c)}" for c in source_reader.schema.names)
         sql = f"""
@@ -298,7 +307,11 @@ class DuckLakeEngine:
             f"FROM ducklake_list_files({self._sql_string(self._catalog_name)}, {self._sql_string(table_name)})"
         ).fetchone()
         assert result is not None
-        return int(result[0]), int(result[1])
+        try:
+            return int(result[0]), int(result[1])
+        except (TypeError, ValueError) as exc:
+            msg = f"Unexpected ducklake_list_files result: {result!r}"
+            raise RuntimeError(msg) from exc
 
     def get_catalog_metadata_size(self) -> int:
         """Return the entire catalog DB's growth since engine setup (bytes).
@@ -366,7 +379,11 @@ class DuckLakeEngine:
     @staticmethod
     def _version_tuple(version: str) -> tuple[int, ...]:
         """Compare dotted numeric versions without lexicographic errors (e.g. 1.10 > 1.5)."""
-        return tuple(int(part) for part in version.split(".") if part.isdigit())
+        try:
+            return tuple(int(part) for part in version.split(".") if part.isdigit())
+        except ValueError as exc:  # pragma: no cover - guarded by isdigit
+            msg = f"Invalid DuckDB version: {version!r}"
+            raise RuntimeError(msg) from exc
 
     def _ensure_postgres_db(self, host: str, port: int, user: str, password: str, database: str) -> None:
         """Create the catalog database in PostgreSQL if it does not exist.
@@ -409,12 +426,10 @@ class DuckLakeEngine:
                 "SELECT * FROM postgres_query("
                 f"{self._sql_string(self._pg_attach_name)}, 'SELECT pg_database_size(current_database())')"
             ).fetchone()
+            return int(row[0]) if row is not None else 0
         except Exception as exc:  # pragma: no cover - best-effort
             logger.warning(f"Could not query pg_database_size: {exc}")
             return 0
-        if row is None:
-            return 0
-        return int(row[0])
 
     def _create_table(self, fq: str, schema: pa.Schema) -> None:
         """Create the DuckLake table with the given Arrow schema, partitioned by event_date."""

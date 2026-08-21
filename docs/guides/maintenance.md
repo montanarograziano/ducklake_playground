@@ -13,10 +13,11 @@ DuckLake's snapshot model unlocks three capabilities you'll want to demo:
 
 ## Data inlining (on by default since v1.0)
 
-Since DuckLake v1.0, inserts and deletes smaller than `data_inlining_row_limit` (default
+Since DuckLake v1.0, inserts of up to `data_inlining_row_limit` rows (default
 **10 rows**) are written directly to tables in the Postgres catalog instead of a new
-Parquet file. Reads merge inlined rows with Parquet data transparently — a `SELECT`
-never needs to know where a row physically lives.
+Parquet file. Small deletes and updates can also be inlined when eligible. Reads merge
+inlined rows with Parquet data transparently — a `SELECT` never needs to know where a
+row physically lives.
 
 This only matters for **small** writes. The streaming demo's batches (`chunk_size` ≈
 250K rows) are always far above the threshold and go straight to Parquet, unaffected.
@@ -24,7 +25,7 @@ It matters for the conference demo's one-off `INSERT ... VALUES (...), (...)` ce
 for `merge_upsert` calls with a tiny overlap in absolute row count.
 
 ```sql
--- Below the 10-row threshold: inlined into the catalog, no new Parquet file.
+-- At or below the 10-row threshold: inlined into the catalog, no new Parquet file.
 INSERT INTO playground_ducklake_local.main.demo_table (id, event_date, int64_col)
 VALUES (1, DATE '2024-01-15', 1), (2, DATE '2024-01-15', 2);
 
@@ -45,20 +46,20 @@ DuckLake provides three procedures that work together:
 -- 1. Compact small adjacent files into larger ones (per partition).
 CALL ducklake_merge_adjacent_files('playground_ducklake_local');
 
--- 2. Mark old snapshots as expired (frees the right to delete their files).
+-- 2. Expire old snapshots (removes their metadata and schedules unused files).
 CALL ducklake_expire_snapshots(
     'playground_ducklake_local',
-    older_than => INTERVAL '7 days'
+    older_than => now() - INTERVAL '7 days'
 );
 
--- 3. Delete orphaned data files (files no live snapshot references).
+-- 3. Delete files scheduled by expiry or compaction.
 CALL ducklake_cleanup_old_files(
     'playground_ducklake_local',
     cleanup_all => true
 );
 ```
 
-Order matters: merge → expire → cleanup. Each is idempotent.
+A useful maintenance sequence is merge → expire → cleanup. Each call is safe to rerun.
 
 Dropping a table removes its catalog entry only. It intentionally does **not** delete the
 shared `DATA_PATH`, because another table may use it; use the retention-aware procedures
@@ -67,7 +68,7 @@ above to remove unreferenced files.
 | Procedure | What it does | When to call |
 | ----------- | -------------- | -------------- |
 | `merge_adjacent_files` | Rewrites small files into larger ones, partition-aware. Creates a new snapshot containing the consolidated file set | After many writes / after merge_upsert (which produces lots of small post-merge files) |
-| `expire_snapshots` | Marks snapshots older than `older_than` as expired. Snapshots stay in the catalog until a `cleanup_old_files` call removes their data | When you want to free disk |
+| `expire_snapshots` | Removes snapshots older than `older_than` from the catalog and schedules their unreferenced files for deletion | When you want to prune history |
 | `cleanup_old_files` | Deletes data files that no live snapshot references. **Not** reversible | After expiring snapshots |
 
 ### When to skip compaction
@@ -82,9 +83,9 @@ Before:
 
 ```sql
 SELECT COUNT(*) AS files,
-       SUM(file_size_bytes) / 1024 / 1024 AS total_mb,
-       AVG(file_size_bytes) / 1024 / 1024 AS avg_mb
-FROM ducklake_table_files('playground_ducklake_local.main.demo_table');
+       SUM(data_file_size_bytes) / 1024 / 1024 AS total_mb,
+       AVG(data_file_size_bytes) / 1024 / 1024 AS avg_mb
+FROM ducklake_list_files('playground_ducklake_local', 'demo_table');
 ```
 
 After `CALL ducklake_merge_adjacent_files(...)`:
@@ -160,7 +161,7 @@ or per-attach time-travel forms — they're free.
 After:
 
 ```sql
-CALL ducklake_expire_snapshots('catalog', older_than => INTERVAL '1 day');
+CALL ducklake_expire_snapshots('catalog', older_than => now() - INTERVAL '1 day');
 CALL ducklake_cleanup_old_files('catalog', cleanup_all => true);
 ```
 
@@ -171,7 +172,7 @@ can't restore them.
 For demos, either:
 
 - Skip `cleanup_old_files` entirely.
-- Pass a longer `older_than` (e.g. `INTERVAL '30 days'`) so recent snapshots stay
+- Pass a later cutoff (e.g. `now() - INTERVAL '30 days'`) so recent snapshots stay
   reclaimable.
 
 ### `set_option` is catalog-scoped
@@ -211,7 +212,7 @@ def _(catalog, con, mo):
     _ = mo.sql(
         f\"\"\"
         CALL ducklake_merge_adjacent_files('{catalog}');
-        CALL ducklake_expire_snapshots('{catalog}', older_than => INTERVAL '7 days');
+        CALL ducklake_expire_snapshots('{catalog}', older_than => now() - INTERVAL '7 days');
         CALL ducklake_cleanup_old_files('{catalog}', cleanup_all => true);
         \"\"\",
         engine=con,

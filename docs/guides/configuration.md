@@ -21,7 +21,7 @@ playground:
 ```
 
 | Key | Type | Default | Purpose |
-|-----|------|---------|---------|
+| ----- | ------ | --------- | --------- |
 | `name` | str | "DuckLake Playground" | Display name; surfaced in the notebook header |
 | `batch_size` | int | 250_000 | Rows per generator chunk. Bounds Python-side memory. See [Tuning](tuning.md) |
 | `target_file_size_mb` | int | 16 | Recommended value to mirror in the notebook's DuckLake `parquet_row_group_size_bytes` option |
@@ -67,7 +67,7 @@ schema:
 ```
 
 | Key | Type | Notes |
-|-----|------|-------|
+| ----- | ------ | ------- |
 | `id_col` | str | Name of the auto-injected sequential id column |
 | `seed` | int | Base RNG seed (per-chunk seeds derived via `SeedSequence.spawn`) |
 | `merge_overlap_ratio` | float | For `iter_merge_batches`: fraction (0..1) of rows that reuse base IDs (UPDATE) vs. new IDs (INSERT) |
@@ -76,7 +76,7 @@ schema:
 ### Supported column types
 
 | Type | Required keys | Notes |
-|------|---------------|-------|
+| ------ | --------------- | ------- |
 | `int8` / `int16` / `int32` / `int64` | — | Random over the full type range |
 | `float32` / `float64` | — | Random in `[-1e6, 1e6]` / `[-1e15, 1e15]` |
 | `decimal` | `precision`, `scale` | Default precision=18, scale=4 |
@@ -118,8 +118,9 @@ s3:
   ducklake_prefix: "ducklake/"
 ```
 
-For real AWS S3, set `endpoint` to `https://s3.<region>.amazonaws.com` and use real
-credentials.
+The current engine secret is intentionally MinIO-specific (`URL_STYLE 'path'` and
+`USE_SSL false`). Real AWS S3 needs a small engine/config change for region, TLS, and
+credential-provider handling; changing only this endpoint is not sufficient.
 
 !!! warning "Do not commit real credentials"
     Treat `config.yaml` as committed config. For real credentials, use environment

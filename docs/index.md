@@ -23,8 +23,8 @@ Docker, and you have a working lakehouse on your laptop.
   Postgres instance.
 - **Two interchangeable storage backends** wired through `config.yaml`:
   - **Local filesystem** — Parquet under `data/ducklake/`, no extra services.
-  - **S3-compatible** — MinIO container included; swap the credentials in
-    `config.yaml` to point at real AWS S3.
+  - **S3-compatible** — MinIO container included. The current secret setup is
+    MinIO-specific; real AWS S3 needs TLS/region credential handling in the engine.
 - **PostgreSQL as the DuckLake catalog**, started via the bundled
   `docker-compose.yml`. Metadata (snapshots, schema versions, file listings) lives
   here.

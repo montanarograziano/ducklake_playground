@@ -108,7 +108,7 @@ This means:
 - You can have local and S3 demos coexisting on the same Postgres instance.
 - Tearing down one mode doesn't affect the other.
 
-The Postgres database is auto-created on first `setup()` call via `psql`.
+The Postgres database is auto-created on first `setup()` call via `psycopg`.
 
 ## Path resolution
 
@@ -128,7 +128,7 @@ rejects with an explicit error.
 For 100M rows on a 16 GB host with default config:
 
 | Component | Working set |
-|-----------|-------------|
+| ----------- | ------------- |
 | Generator (one chunk, 250K rows × ~250 bytes) | ~60 MB |
 | DuckDB execution pipeline | ~50-200 MB |
 | Parquet writer (1-2 active partitions, 16 MB target) | ~50-100 MB |
