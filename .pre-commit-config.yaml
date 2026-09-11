@@ -61,3 +61,10 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
+
+      - id: pyrefly
+        name: pyrefly
+        entry: uv run pyrefly check
+        language: system
+        types: [python]
+        pass_filenames: false

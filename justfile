@@ -28,6 +28,7 @@ lint:
     uv run mypy src
     uv run pyright src
     uv run ty check src
+    uv run pyrefly check
 
 # Run unit tests (no docker required)
 test:

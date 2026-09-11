@@ -50,8 +50,22 @@ class ColumnDef:
     def __post_init__(self) -> None:
         """Reject unsupported or internally inconsistent generator definitions."""
         supported = {
-            "int8", "int16", "int32", "int64", "float32", "float64", "decimal", "date", "datetime",
-            "timestamp", "varchar", "text", "boolean", "list", "map", "struct",
+            "int8",
+            "int16",
+            "int32",
+            "int64",
+            "float32",
+            "float64",
+            "decimal",
+            "date",
+            "datetime",
+            "timestamp",
+            "varchar",
+            "text",
+            "boolean",
+            "list",
+            "map",
+            "struct",
         }
         if not self.name or self.type not in supported:
             raise ValueError(f"Unsupported column type: {self.type}")
@@ -67,7 +81,10 @@ class ColumnDef:
             raise ValueError("map key_type/value_type must be varchar/int32")
         if self.type == "struct":
             fields = [field.partition(":") for field in self.fields]
-            if not fields or any(not name or separator != ":" or typ not in {"int32", "varchar", "float64"} for name, separator, typ in fields):
+            if not fields or any(
+                not name or separator != ":" or typ not in {"int32", "varchar", "float64"}
+                for name, separator, typ in fields
+            ):
                 raise ValueError("struct fields must be non-empty name:int32|varchar|float64 entries")
             if len({name for name, _, _ in fields}) != len(fields):
                 raise ValueError("struct field names must be unique")

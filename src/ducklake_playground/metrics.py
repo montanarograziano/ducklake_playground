@@ -12,7 +12,7 @@ import threading
 import time
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 import psutil
 from loguru import logger
@@ -169,7 +169,7 @@ def _get_s3_client(*, endpoint: str, access_key: str, secret_key: str):  # noqa:
 
 def s3_rm_recursive(*, bucket: str, prefix: str, endpoint: str, access_key: str, secret_key: str) -> int:
     """Delete all objects under an S3 prefix. Returns count deleted."""
-    client = _get_s3_client(endpoint=endpoint, access_key=access_key, secret_key=secret_key)
+    client = cast("Any", _get_s3_client(endpoint=endpoint, access_key=access_key, secret_key=secret_key))
     deleted = 0
     paginator = client.get_paginator("list_objects_v2")
     for page in paginator.paginate(Bucket=bucket, Prefix=prefix):
