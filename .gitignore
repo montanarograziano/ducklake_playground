@@ -43,6 +43,15 @@ site/
 # Presentation assets
 assets/
 
+# Local presentation sources and generated review artifacts
+DuckLake_Presentation.pptx
+*.pptx.inspect.ndjson
+DuckLake_Presentation_PyData_Amsterdam_2026_Final/
+
+# Generated scratch and local notebook layouts
+tmp/
+notebooks/layouts/
+
 # Project-local scratch
 prova.py
 prova.ipynb
