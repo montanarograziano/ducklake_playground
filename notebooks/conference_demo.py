@@ -117,7 +117,7 @@ def _(con, fq, mo):
         f"""
         DESCRIBE {fq}
         """,
-        engine=con,
+        engine=con
     )
     return
 
@@ -132,7 +132,7 @@ def _(con, fq, mo):
                COUNT(DISTINCT event_date) AS partitions
         FROM {fq}
         """,
-        engine=con,
+        engine=con
     )
     return
 
@@ -147,7 +147,7 @@ def _(con, fq, mo):
         WHERE event_date = DATE '2024-01-15'
         GROUP BY varchar_col
         """,
-        engine=con,
+        engine=con
     )
     return
 
@@ -185,7 +185,7 @@ def _(catalog, con, fq, mo, pre_count, pre_snapshot):
     con.execute(
         f"""
         UPDATE {fq}
-        SET float64_col = float64_col * 0.9
+        SET float64_col = 999999
         WHERE id = 900000001
         """
     )
@@ -300,7 +300,7 @@ def _(TABLE, catalog, con, mo, post_snapshot, pre_snapshot):
         ORDER BY change_type, id
         LIMIT 20
         """,
-        engine=con,
+        engine=con
     )
     return
 
@@ -599,7 +599,7 @@ def _(con, fq, mo):
         WHERE id IN (900000001, 900000002, 999999999,
                      900000101, 900000102, 900000103);
         """,
-        engine=con,
+        engine=con
     )
     return
 
@@ -612,7 +612,7 @@ def _(con, fq, mo):
         FROM {fq}
         LIMIT 10
         """,
-        engine=con,
+        engine=con
     )
     return
 
