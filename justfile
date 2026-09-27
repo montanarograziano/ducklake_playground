@@ -50,6 +50,18 @@ up-kafka:
 produce-events *args:
     uv run python -m ducklake_playground.kafka_producer {{args}}
 
+# Consume JSON events into the new DuckLake table (Ctrl-C or pass --idle-exit)
+consume-events *args:
+    uv run python -m ducklake_playground.kafka_consumer {{args}}
+
+# Show row/ID counts and recent DuckLake snapshots
+inspect-events *args:
+    uv run python -m ducklake_playground.kafka_consumer --inspect {{args}}
+
+# Stop the event-demo broker and Postgres without deleting their data
+down-kafka:
+    docker compose --profile kafka down
+
 # Start Postgres + MinIO (for storage_mode=s3)
 up-s3:
     docker compose --profile s3 up -d

@@ -171,9 +171,9 @@ class DuckLakeEngine:
         if self._con is not None:
             try:
                 self._con.execute("USE memory;")
-                self._con.execute(f"DETACH IF EXISTS {self._quote_identifier(self._catalog_name)};")
+                self._con.execute(f"DETACH {self._quote_identifier(self._catalog_name)};")
                 if self._pg_attach_name:
-                    self._con.execute(f"DETACH IF EXISTS {self._quote_identifier(self._pg_attach_name)};")
+                    self._con.execute(f"DETACH {self._quote_identifier(self._pg_attach_name)};")
             except Exception as exc:
                 logger.debug(f"close() detach warning: {exc}")
             self._con.close()

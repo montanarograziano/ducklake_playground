@@ -105,11 +105,29 @@ def main() -> None:
     parser.add_argument("--topic", default="events")
     parser.add_argument("--table", default="kafka_events")
     parser.add_argument("--bootstrap-servers", default="localhost:9092")
+    parser.add_argument("--inspect", action="store_true", help="query DuckLake without consuming Kafka")
     args = parser.parse_args()
 
     config = load_config(Path(__file__).resolve().parents[2] / "config.yaml")
     engine = DuckLakeEngine()
     engine.setup(config, "local")
+    if args.inspect:
+        try:
+            fq = engine.qualified_table(args.table)
+            row = engine.connection.execute(f"SELECT count(*), count(DISTINCT id) FROM {fq}").fetchone()
+            if row is None:
+                raise RuntimeError(f"Could not inspect {args.table}")
+            print(f"{args.table}: rows={row[0]}, distinct_ids={row[1]}")
+            snapshots = engine.connection.execute(
+                f"SELECT snapshot_id, CAST(snapshot_time AS VARCHAR) FROM {engine.catalog_name}.snapshots() "
+                "ORDER BY snapshot_id DESC LIMIT 10"
+            ).fetchall()
+            print("Recent snapshots (id, time):")
+            for snapshot in snapshots:
+                print(snapshot)
+        finally:
+            engine.close()
+        return
     consumer = Consumer(
         {
             "bootstrap.servers": args.bootstrap_servers,

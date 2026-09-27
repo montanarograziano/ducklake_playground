@@ -49,6 +49,7 @@ def main() -> None:
     from confluent_kafka import Producer
 
     from .config import load_config
+    from .data_generator import build_schema
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--count", type=int, default=150)
@@ -58,7 +59,7 @@ def main() -> None:
     args = parser.parse_args()
 
     config = load_config(Path(__file__).resolve().parents[2] / "config.yaml")
-    schema = StreamingGenerator(GeneratorSpec(config.schema, total_rows=0, chunk_size=1)).schema
+    schema = build_schema(config.schema)
     producer = Producer({"bootstrap.servers": args.bootstrap_servers})
     failures: list[str] = []
 

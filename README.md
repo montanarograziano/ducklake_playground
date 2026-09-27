@@ -60,6 +60,10 @@ ducklake_playground/
 
 ## Documentation
 
+To learn event streaming with Kafka and JSON, see the
+[Kafka JSON events guide](docs/guides/kafka-streaming.md). It reuses this
+project's schema and DuckLake engine while writing to a separate table.
+
 ```bash
 just preview-docs   # http://localhost:8000
 just build-docs     # static site under site/
