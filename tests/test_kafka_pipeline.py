@@ -6,6 +6,7 @@ import datetime as dt
 from pathlib import Path
 
 import pytest
+from confluent_kafka import KafkaError
 
 from ducklake_playground import load_config
 from ducklake_playground.event_json import encode_event
@@ -35,9 +36,10 @@ def test_producer_can_emit_without_duplicates() -> None:
 
 
 class FakeMessage:
-    def __init__(self, key: bytes, value: bytes) -> None:
+    def __init__(self, key: bytes, value: bytes, error: KafkaError | None = None) -> None:
         self._key = key
         self._value = value
+        self._error = error
 
     def key(self) -> bytes:
         return self._key
@@ -45,8 +47,8 @@ class FakeMessage:
     def value(self) -> bytes:
         return self._value
 
-    def error(self) -> None:
-        return None
+    def error(self) -> KafkaError | None:
+        return self._error
 
 
 class FakeConsumer:
@@ -139,6 +141,17 @@ def test_consumer_flushes_partial_batch_on_idle_exit() -> None:
     consumer = FakeConsumer([message])
     engine = FakeEngine()
     count = consume(consumer, engine, schema, table_name="kafka_events", batch_size=2, batch_timeout=5, idle_exit=0)
+    assert count == 1
+    assert len(engine.merged) == 1
+    assert consumer.commits == [False]
+
+
+def test_consumer_waits_for_topic_created_after_subscription() -> None:
+    message, schema = _event_message()
+    unavailable = FakeMessage(b"", b"", KafkaError(KafkaError.UNKNOWN_TOPIC_OR_PART))
+    consumer = FakeConsumer([unavailable, message])
+    engine = FakeEngine()
+    count = consume(consumer, engine, schema, table_name="kafka_events", batch_size=1, batch_timeout=5, idle_exit=0.01)
     assert count == 1
     assert len(engine.merged) == 1
     assert consumer.commits == [False]

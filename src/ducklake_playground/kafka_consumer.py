@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
-from confluent_kafka import Consumer
+from confluent_kafka import Consumer, KafkaError
 
 from .event_json import decode_event, events_reader
 
@@ -65,9 +65,12 @@ def consume(
         while True:
             message = consumer.poll(1.0)
             now = time.monotonic()
+            if message is not None and (error := message.error()) is not None:
+                if error.code() == KafkaError.UNKNOWN_TOPIC_OR_PART:
+                    message = None  # The producer may create this topic after we subscribe.
+                else:
+                    raise RuntimeError(f"Kafka consumer error: {error}")
             if message is not None:
-                if message.error():
-                    raise RuntimeError(f"Kafka consumer error: {message.error()}")
                 payload = message.value()
                 if payload is None:
                     raise ValueError("Kafka event has a null JSON value")
