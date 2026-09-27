@@ -204,6 +204,23 @@ class DuckLakeEngine:
             self._con.execute("ROLLBACK")
             raise
 
+    def ensure_table(self, table_name: str, schema: pa.Schema) -> None:
+        """Create a partitioned table with ``schema`` if it does not exist."""
+        assert self._con is not None
+        fq = self._qualified(table_name)
+        try:
+            self._con.execute(f"SELECT 1 FROM {fq} LIMIT 0")
+            return
+        except duckdb.CatalogException:
+            pass
+        self._con.execute("BEGIN TRANSACTION")
+        try:
+            self._create_table(fq, schema)
+            self._con.execute("COMMIT")
+        except Exception:
+            self._con.execute("ROLLBACK")
+            raise
+
     def write_overwrite(
         self,
         table_name: str,
