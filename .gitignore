@@ -55,3 +55,4 @@ notebooks/layouts/
 # Project-local scratch
 prova.py
 prova.ipynb
+.worktrees/
