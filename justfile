@@ -42,6 +42,14 @@ test-integration:
 up:
     docker compose up -d
 
+# Start Postgres plus a local Kafka broker for the JSON event demo
+up-kafka:
+    docker compose --profile kafka up -d postgres kafka
+
+# Publish a finite JSON event run (pass extra flags via `just produce-events --count 20`)
+produce-events *args:
+    uv run python -m ducklake_playground.kafka_producer {{args}}
+
 # Start Postgres + MinIO (for storage_mode=s3)
 up-s3:
     docker compose --profile s3 up -d
