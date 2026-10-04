@@ -87,6 +87,10 @@ demo:
 conference:
     uv run marimo edit notebooks/conference_demo.py
 
+# Inspect the Kafka-fed DuckLake table in marimo
+kafka-marimo:
+    uv run marimo edit notebooks/kafka_events.py
+
 # Open the Jupyter demo notebook (data generation)
 jupyter:
     uv run jupyter lab notebooks/streaming_demo.ipynb
@@ -94,6 +98,10 @@ jupyter:
 # Open the Jupyter conference demo
 jupyter-conference:
     uv run jupyter lab notebooks/conference_demo.ipynb
+
+# Inspect the Kafka-fed DuckLake table in Jupyter
+kafka-jupyter:
+    uv run jupyter lab notebooks/kafka_events.ipynb
 
 # Live preview the docs
 preview-docs:

@@ -5,7 +5,7 @@ marimo-version: 0.23.4
 
 # Notebooks
 
-Two demos ship in `notebooks/`, each in both marimo (`.py`) and Jupyter (`.ipynb`) form:
+Three demos ship in `notebooks/`, each in both marimo (`.py`) and Jupyter (`.ipynb`) form:
 
 | File | Format | Launch | Primary use |
 |------|--------|--------|-------------|
@@ -13,6 +13,8 @@ Two demos ship in `notebooks/`, each in both marimo (`.py`) and Jupyter (`.ipynb
 | `streaming_demo.ipynb` | Jupyter | `just jupyter` | VS Code, JupyterLab, or anything that speaks `.ipynb` |
 | `conference_demo.py` | marimo | `just conference` | ACID transactions, time travel, CDC, schema evolution, MERGE, maintenance |
 | `conference_demo.ipynb` | Jupyter | `just jupyter-conference` | Jupyter mirror of the conference demo |
+| `kafka_events.py` | marimo | `just kafka-marimo` | Inspect the Kafka-fed table, event IDs, and snapshots |
+| `kafka_events.ipynb` | Jupyter | `just kafka-jupyter` | Jupyter mirror of Kafka inspection |
 
 The `.py` and `.ipynb` halves of each demo share the same data flow and produce the same
 DuckLake catalog. This page walks through `streaming_demo`; the `conference_demo` cells map
@@ -89,16 +91,17 @@ Same flow, but:
 - Parameters are plain Python variables (`ROW_COUNT = 1_000_000`) instead of UI sliders.
 - SQL is run via `con.execute(query).pl()` and the resulting Polars DataFrame is the
   cell's last expression (auto-rendered).
-- Maintenance commands are commented out by default; uncomment to run.
+- The same before-write count, aggregation, query plan, and snapshots appear in
+  both formats. Maintenance remains in `conference_demo`.
 
 VS Code's notebook extension handles `.ipynb` files; just open the file and select
 the project's Python interpreter (`.venv/bin/python`) when prompted.
 
 ## Switching between them
 
-Both notebooks write to the same DuckLake catalog (`playground_ducklake_local`).
-Tables and snapshots produced by one are visible to the other. To clean up between
-runs, drop the table:
+The streaming and conference demos use `demo_table` in the same local DuckLake
+catalog. The Kafka pair reads `kafka_events` in that catalog, so it does not
+overwrite the Arrow streaming demo. To clean up `demo_table` between runs, drop it:
 
 ```sql
 DROP TABLE playground_ducklake_local.main.demo_table;

@@ -50,7 +50,9 @@ ducklake_playground/
 │   ├── streaming_demo.py     # marimo: data gen + streaming writes (primary)
 │   ├── streaming_demo.ipynb  # Jupyter mirror
 │   ├── conference_demo.py    # marimo: live demo (assumes table exists)
-│   └── conference_demo.ipynb # Jupyter mirror
+│   ├── conference_demo.ipynb # Jupyter mirror
+│   ├── kafka_events.py       # marimo: inspect Kafka-fed events
+│   └── kafka_events.ipynb    # Jupyter mirror
 ├── docs/                    # Zensical site
 ├── tests/                   # pytest smoke tests
 ├── config.yaml              # all knobs
@@ -63,6 +65,8 @@ ducklake_playground/
 To learn event streaming with Kafka and JSON, see the
 [Kafka JSON events guide](docs/guides/kafka-streaming.md). It reuses this
 project's schema and DuckLake engine while writing to a separate table.
+After the consumer writes its first batch, open `just kafka-marimo` or
+`just kafka-jupyter` to inspect that table.
 
 ```bash
 just preview-docs   # http://localhost:8000

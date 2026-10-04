@@ -28,12 +28,13 @@ Docker, and you have a working lakehouse on your laptop.
 - **PostgreSQL as the DuckLake catalog**, started via the bundled
   `docker-compose.yml`. Metadata (snapshots, schema versions, file listings) lives
   here.
-- **Two demo notebooks** in `notebooks/`:
+- **Three notebook walkthroughs** in `notebooks/`, each available in marimo and Jupyter:
   - `streaming_demo` — generate data, stream it into DuckLake, inspect snapshots,
     iterate on SQL with marimo's reactive cells (or the Jupyter mirror).
   - `conference_demo` — walks through ACID transactions, time travel, CDC
     (`table_changes`), schema evolution (`ALTER TABLE` without rewrites), MERGE/upsert,
     and maintenance (`merge_adjacent_files`, `expire_snapshots`, `cleanup_old_files`).
+  - `kafka_events` inspects the separate table populated by the Kafka JSON consumer.
 
 ## What you can do with it
 

@@ -53,6 +53,19 @@ Inspect the table and recent DuckLake snapshots:
 just inspect-events
 ```
 
+For interactive queries, open the same read-only walkthrough in either format:
+
+```bash
+just kafka-marimo    # notebooks/kafka_events.py
+just kafka-jupyter   # notebooks/kafka_events.ipynb
+```
+
+Keep Postgres running while the notebook is open. The notebook reads the local
+`kafka_events` table; the producer and consumer continue to run in their own
+terminals. The table appears after the first consumer batch is written. Rerun
+the notebook's query cells to see later batches, since external writes do not
+trigger notebook reactivity.
+
 For a fresh table, the result should show `rows=12, distinct_ids=12`. If you
 have run the demo before, the table retains earlier events and both numbers
 will be larger, but equal. Each successful microbatch creates a DuckLake
