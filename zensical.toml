@@ -16,6 +16,7 @@ nav = [
     {"Architecture" = "guides/architecture.md"},
     {"Data Generation" = "guides/data-generation.md"},
     {"Notebooks" = "guides/notebooks.md"},
+    {"Kafka JSON Events" = "guides/kafka-streaming.md"},
   ]},
   {"Operations" = [
     {"Tuning" = "guides/tuning.md"},

@@ -42,6 +42,26 @@ test-integration:
 up:
     docker compose up -d
 
+# Start Postgres plus a local Kafka broker for the JSON event demo
+up-kafka:
+    docker compose --profile kafka up -d postgres kafka
+
+# Publish a finite JSON event run (pass extra flags via `just produce-events --count 20`)
+produce-events *args:
+    uv run python -m ducklake_playground.kafka_producer {{args}}
+
+# Consume JSON events into the new DuckLake table (Ctrl-C or pass --idle-exit)
+consume-events *args:
+    uv run python -m ducklake_playground.kafka_consumer {{args}}
+
+# Show row/ID counts and recent DuckLake snapshots
+inspect-events *args:
+    uv run python -m ducklake_playground.kafka_consumer --inspect {{args}}
+
+# Stop the event-demo broker and Postgres without deleting their data
+down-kafka:
+    docker compose --profile kafka down
+
 # Start Postgres + MinIO (for storage_mode=s3)
 up-s3:
     docker compose --profile s3 up -d
@@ -67,6 +87,10 @@ demo:
 conference:
     uv run marimo edit notebooks/conference_demo.py
 
+# Inspect the Kafka-fed DuckLake table in marimo
+kafka-marimo:
+    uv run marimo edit notebooks/kafka_events.py
+
 # Open the Jupyter demo notebook (data generation)
 jupyter:
     uv run jupyter lab notebooks/streaming_demo.ipynb
@@ -74,6 +98,10 @@ jupyter:
 # Open the Jupyter conference demo
 jupyter-conference:
     uv run jupyter lab notebooks/conference_demo.ipynb
+
+# Inspect the Kafka-fed DuckLake table in Jupyter
+kafka-jupyter:
+    uv run jupyter lab notebooks/kafka_events.ipynb
 
 # Live preview the docs
 preview-docs:

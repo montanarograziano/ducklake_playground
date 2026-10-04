@@ -171,9 +171,9 @@ class DuckLakeEngine:
         if self._con is not None:
             try:
                 self._con.execute("USE memory;")
-                self._con.execute(f"DETACH IF EXISTS {self._quote_identifier(self._catalog_name)};")
+                self._con.execute(f"DETACH {self._quote_identifier(self._catalog_name)};")
                 if self._pg_attach_name:
-                    self._con.execute(f"DETACH IF EXISTS {self._quote_identifier(self._pg_attach_name)};")
+                    self._con.execute(f"DETACH {self._quote_identifier(self._pg_attach_name)};")
             except Exception as exc:
                 logger.debug(f"close() detach warning: {exc}")
             self._con.close()
@@ -199,6 +199,23 @@ class DuckLakeEngine:
             except duckdb.CatalogException:
                 self._create_table(fq, schema)
             self._insert_reader(fq, reader)
+            self._con.execute("COMMIT")
+        except Exception:
+            self._con.execute("ROLLBACK")
+            raise
+
+    def ensure_table(self, table_name: str, schema: pa.Schema) -> None:
+        """Create a partitioned table with ``schema`` if it does not exist."""
+        assert self._con is not None
+        fq = self._qualified(table_name)
+        try:
+            self._con.execute(f"SELECT 1 FROM {fq} LIMIT 0")
+            return
+        except duckdb.CatalogException:
+            pass
+        self._con.execute("BEGIN TRANSACTION")
+        try:
+            self._create_table(fq, schema)
             self._con.execute("COMMIT")
         except Exception:
             self._con.execute("ROLLBACK")
