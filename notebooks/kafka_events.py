@@ -5,7 +5,7 @@ Open with ``just kafka-marimo`` after ``just up-kafka`` and a consumer batch.
 
 import marimo
 
-__generated_with = "0.24.2"
+__generated_with = "0.23.6"
 app = marimo.App(width="full")
 
 
@@ -48,7 +48,7 @@ def _(DuckLakeEngine, config, mo):
     catalog = engine.catalog_name
     table = engine.qualified_table("kafka_events")
     mo.md(f"Connected to `{table}`. Data path: `{engine.data_path}`")
-    return catalog, con, engine, table
+    return catalog, con, table
 
 
 @app.cell
@@ -58,7 +58,7 @@ def _(con, mo, table):
         SELECT COUNT(*) AS rows, COUNT(DISTINCT id) AS distinct_ids
         FROM {table}
         """,
-        engine=con,
+        engine=con
     )
     return
 
@@ -72,7 +72,7 @@ def _(con, mo, table):
         ORDER BY timestamp_col DESC
         LIMIT 20
         """,
-        engine=con,
+        engine=con
     )
     return
 
@@ -86,7 +86,7 @@ def _(catalog, con, mo):
         ORDER BY snapshot_id DESC
         LIMIT 10
         """,
-        engine=con,
+        engine=con
     )
     return
 
